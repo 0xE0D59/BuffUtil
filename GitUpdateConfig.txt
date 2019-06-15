@@ -1,0 +1,13 @@
+Owner: 0xE0D59
+Name: BuffUtil
+Repository
+
+Ignore:
+src
+.gitignore
+.gitattributes
+README.md
+LICENSE
+config.ini
+.config
+.pdb

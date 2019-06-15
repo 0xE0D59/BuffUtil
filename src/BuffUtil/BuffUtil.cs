@@ -20,6 +20,9 @@ namespace BuffUtil
         private const string kBloodRageName = "BloodRage";
         private const string kBloodRageInternalName = "blood_rage";
 
+        private const string kBladeFlurryBuffName = "charged_attack";
+        private const string kInfusedChannelingBuffName = "storm_barrier_support_damage";
+
         private const string kGracePeriodBuffName = "grace_period";
 
         private static readonly TimeSpan kSteelSkinMinTimeBetweenCasts = TimeSpan.FromSeconds(4.5);
@@ -36,6 +39,8 @@ namespace BuffUtil
         private DateTime? lastSteelSkinCast;
         private int? nearbyMonsterCount;
         private List<ActorSkill> skills;
+        private float HPPercent;
+        private float MPPercent;
 
         public override void Initialise()
         {
@@ -66,12 +71,57 @@ namespace BuffUtil
         {
             try
             {
+                HandleBladeFlurry();
                 HandleBloodRage();
                 HandleSteelSkin();
             }
             catch (Exception ex)
             {
                 LogError($"Exception in {nameof(BuffUtil)}.{nameof(OnExecute)}: {ex.Message}", 3f);
+            }
+        }
+
+        private void HandleBladeFlurry()
+        {
+            
+            try
+            {
+                if (!Settings.BladeFlurry)
+                    return;
+
+                var stacksBuff = GetBuff(kBladeFlurryBuffName);
+                if (stacksBuff == null)
+                    return;
+
+                var charges = stacksBuff.Charges;
+                if (charges < Settings.BladeFlurryMinCharges.Value)
+                    return;
+
+                if (Settings.BladeFlurryWaitForInfused)
+                {
+                    var hasInfusedBuff = HasBuff(kInfusedChannelingBuffName);
+                    if (!hasInfusedBuff.HasValue || !hasInfusedBuff.Value)
+                        return;
+                }
+
+                if (Settings.Debug)
+                    LogMessage($"Releasing Blade Flurry at {charges} charges.", 1);
+
+                if (Settings.BladeFlurryUseLeftClick)
+                {
+                    inputSimulator.Mouse.LeftButtonUp();
+                    inputSimulator.Mouse.LeftButtonDown();
+                }
+                else
+                {
+                    inputSimulator.Mouse.RightButtonUp();
+                    inputSimulator.Mouse.RightButtonDown();
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleBloodRage)}: {ex.Message}", 3f);
             }
         }
 
@@ -84,6 +134,9 @@ namespace BuffUtil
 
                 if (lastBloodRageCast.HasValue && currentTime - lastBloodRageCast.Value <
                     kBloodRageMinTimeBetweenCasts + kExtraMinTime)
+                    return;
+
+                if (HPPercent > Settings.BloodRageMaxHP.Value || MPPercent > Settings.BloodRageMaxMP)
                     return;
 
                 var hasBuff = HasBuff(kBloodRageBuffName);
@@ -124,6 +177,9 @@ namespace BuffUtil
                     kSteelSkinMinTimeBetweenCasts + kExtraMinTime)
                     return;
 
+                if (HPPercent > Settings.SteelSkinMaxHP.Value)
+                    return;
+
                 var hasBuff = HasBuff(kSteelSkinBuffName);
                 if (!hasBuff.HasValue || hasBuff.Value)
                     return;
@@ -160,7 +216,9 @@ namespace BuffUtil
                 var inTown = GameController.Area.CurrentArea.IsTown || GameController.Area.CurrentArea.IsHideout;
                 if (inTown)
                     return false;
-                var isDead = !GameController.Game.IngameState.Data.LocalPlayer.IsAlive;
+                var player = GameController.Game.IngameState.Data.LocalPlayer;
+                var playerLife = player.GetComponent<Life>();
+                var isDead = playerLife.CurHP <= 0;
                 if (isDead)
                     return false;
 
@@ -178,6 +236,9 @@ namespace BuffUtil
 
                 currentTime = DateTime.UtcNow;
 
+                HPPercent = 100f * playerLife.HPPercentage;
+                MPPercent = 100f * playerLife.MPPercentage;
+                
                 return true;
             }
             catch (Exception ex)
@@ -211,6 +272,17 @@ namespace BuffUtil
             }
 
             return buffs.Any(b => string.Compare(b.Name, buffName, StringComparison.OrdinalIgnoreCase) == 0);
+        }
+        
+        private Buff GetBuff(string buffName)
+        {
+            if (buffs == null)
+            {
+                LogError("Requested buff retrieval, but buff list is empty.", 1);
+                return null;
+            }
+
+            return buffs.FirstOrDefault(b => string.Compare(b.Name, buffName, StringComparison.OrdinalIgnoreCase) == 0);
         }
 
         private ActorSkill GetUsableSkill(string skillName, string skillInternalName, int skillSlotIndex)

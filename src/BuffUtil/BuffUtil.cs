@@ -15,6 +15,11 @@ namespace BuffUtil
         private const string kSteelSkinBuffName = "steelskin";
         private const string kSteelSkinName = "QuicKGuard";
         private const string kSteelSkinInternalName = "steelskin";
+        
+        private const string kPhaseRunBuffName1 = "new_phase_run";
+        private const string kPhaseRunBuffName2 = "new_phase_run_damage";
+        private const string kPhaseRunName = "NewPhaseRun";
+        private const string kPhaseRunInternalName = "new_phase_run";
 
         private const string kBloodRageBuffName = "blood_rage";
         private const string kBloodRageName = "BloodRage";
@@ -29,6 +34,7 @@ namespace BuffUtil
 
         private static readonly TimeSpan kSteelSkinMinTimeBetweenCasts = TimeSpan.FromSeconds(4.5);
         private static readonly TimeSpan kBloodRageMinTimeBetweenCasts = TimeSpan.FromSeconds(1);
+        private static readonly TimeSpan kPhaseRunMinTimeBetweenCasts = TimeSpan.FromSeconds(4);
         private static readonly TimeSpan kExtraMinTime = TimeSpan.FromSeconds(0.15);
         private readonly HashSet<EntityWrapper> loadedMonsters = new HashSet<EntityWrapper>();
         private readonly object loadedMonstersLock = new object();
@@ -39,6 +45,7 @@ namespace BuffUtil
         private InputSimulator inputSimulator;
         private DateTime? lastBloodRageCast;
         private DateTime? lastSteelSkinCast;
+        private DateTime? lastPhaseRunCast;
         private int? nearbyMonsterCount;
         private List<ActorSkill> skills;
         private float HPPercent;
@@ -77,6 +84,7 @@ namespace BuffUtil
                 HandleScourgeArrow();
                 HandleBloodRage();
                 HandleSteelSkin();
+                HandlePhaseRun();
             }
             catch (Exception ex)
             {
@@ -240,6 +248,47 @@ namespace BuffUtil
                     LogMessage("Casting Steel Skin", 1);
                 inputSimulator.Keyboard.KeyPress((VirtualKeyCode) Settings.SteelSkinKey.Value);
                 lastSteelSkinCast = currentTime;
+            }
+            catch (Exception ex)
+            {
+                LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleSteelSkin)}: {ex.StackTrace}", 3f);
+            }
+        }
+
+        private void HandlePhaseRun()
+        {
+            try
+            {
+                if (!Settings.PhaseRun)
+                    return;
+
+                if (lastPhaseRunCast.HasValue && currentTime - lastPhaseRunCast.Value <
+                    kPhaseRunMinTimeBetweenCasts + kExtraMinTime)
+                    return;
+
+                if (HPPercent > Settings.PhaseRunMaxHP.Value)
+                    return;
+
+                var hasBuff = HasBuff(kPhaseRunBuffName1);
+                if (!hasBuff.HasValue || hasBuff.Value)
+                    return;
+
+                var skill = GetUsableSkill(kPhaseRunName, kPhaseRunInternalName,
+                    Settings.PhaseRunConnectedSkill.Value);
+                if (skill == null)
+                {
+                    if (Settings.Debug)
+                        LogMessage("Can not cast Phase Run - not found in usable skills.", 1);
+                    return;
+                }
+
+                if (!NearbyMonsterCheck())
+                    return;
+
+                if (Settings.Debug)
+                    LogMessage("Casting Phase Run", 1);
+                inputSimulator.Keyboard.KeyPress((VirtualKeyCode) Settings.PhaseRunKey.Value);
+                lastPhaseRunCast = currentTime;
             }
             catch (Exception ex)
             {

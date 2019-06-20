@@ -19,6 +19,11 @@ namespace BuffUtil
             SteelSkinConnectedSkill = new RangeNode<int>(1, 1, 8);
             SteelSkinMaxHP = new RangeNode<int>(90, 0, 100);
 
+            PhaseRun = new ToggleNode(false);
+            PhaseRunKey = new HotkeyNode(Keys.R);
+            PhaseRunConnectedSkill = new RangeNode<int>(1, 1, 8);
+            PhaseRunMaxHP = new RangeNode<int>(90, 0, 100);
+
             BladeFlurry = new ToggleNode(false);
             BladeFlurryMinCharges = new RangeNode<int>(6, 1, 6);
             BladeFlurryUseLeftClick = new ToggleNode(false);
@@ -75,29 +80,43 @@ namespace BuffUtil
 
         #endregion
 
+        #region Phase Run
+
+        [Menu("Phase Run", 3)] public ToggleNode PhaseRun { get; set; }
+
+        [Menu("Phase Run Key", 31, 3)] public HotkeyNode PhaseRunKey { get; set; }
+
+        [Menu("Connected Skill", "Set the skill slot (1 = top left, 8 = bottom right)", 32, 3)]
+        public RangeNode<int> PhaseRunConnectedSkill { get; set; }
+
+        [Menu("Max HP", "HP percent above which skill is not cast", 33, 3)]
+        public RangeNode<int> PhaseRunMaxHP { get; set; }
+
+        #endregion
+
         #region Blade Flurry
 
-        [Menu("Blade Flurry", "Use mouse click to release Blade Flurry charges", 3)] public ToggleNode BladeFlurry { get; set; }
+        [Menu("Blade Flurry", "Use mouse click to release Blade Flurry charges", 4)] public ToggleNode BladeFlurry { get; set; }
 
-        [Menu("Min charges", "Minimal amount of BF charges to release", 31, 3)]
+        [Menu("Min charges", "Minimal amount of BF charges to release", 41, 4)]
         public RangeNode<int> BladeFlurryMinCharges { get; set; }
 
-        [Menu("Use left click", "Use left click instead of right click to release charges", 32, 3)] 
+        [Menu("Use left click", "Use left click instead of right click to release charges", 42, 4)] 
         public ToggleNode BladeFlurryUseLeftClick { get; set; }
         
-        [Menu("Wait for Infused Channeling buff", "Wait for Infused Channeling buff before release", 33, 3)] 
+        [Menu("Wait for Infused Channeling buff", "Wait for Infused Channeling buff before release", 43, 4)] 
         public ToggleNode BladeFlurryWaitForInfused { get; set; }
 
         #endregion
 
         #region Scourge Arrow
 
-        [Menu("Scourge Arrow", "Use mouse click to release Scourge Arrow charges", 4)] public ToggleNode ScourgeArrow { get; set; }
+        [Menu("Scourge Arrow", "Use mouse click to release Scourge Arrow charges", 5)] public ToggleNode ScourgeArrow { get; set; }
 
-        [Menu("Min charges", "Minimal amount of BF charges to release", 41, 4)]
+        [Menu("Min charges", "Minimal amount of BF charges to release", 51, 5)]
         public RangeNode<int> ScourgeArrowMinCharges { get; set; }
 
-        [Menu("Use left click", "Use left click instead of right click to release charges", 42, 4)] 
+        [Menu("Use left click", "Use left click instead of right click to release charges", 52, 5)] 
         public ToggleNode ScourgeArrowUseLeftClick { get; set; }
         #endregion
 
@@ -114,7 +133,7 @@ namespace BuffUtil
         [Menu("Range", "Max distance of monsters to player to count as nearby", 103, 10)]
         public RangeNode<int> NearbyMonsterMaxDistance { get; set; }
 
-        [Menu("Disable in hideout", "Disable the plugin in hideout?", 103, 10)]
+        [Menu("Disable in hideout", "Disable the plugin in hideout?", 104, 10)]
         public ToggleNode DisableInHideout { get; set; }
 
         #endregion

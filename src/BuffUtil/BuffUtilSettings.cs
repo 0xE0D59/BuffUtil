@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Windows.Forms;
 using PoeHUD.Hud.Settings;
 using PoeHUD.Plugins;
 
@@ -18,6 +19,16 @@ namespace BuffUtil
             SteelSkinKey = new HotkeyNode(Keys.W);
             SteelSkinConnectedSkill = new RangeNode<int>(1, 1, 8);
             SteelSkinMaxHP = new RangeNode<int>(90, 0, 100);
+
+            ImmortalCall = new ToggleNode(false);
+            ImmortalCallKey = new HotkeyNode(Keys.T);
+            ImmortalCallConnectedSkill = new RangeNode<int>(1, 1, 8);
+            ImmortalCallMaxHP = new RangeNode<int>(50, 0, 100);
+
+            MoltenShell = new ToggleNode(false);
+            MoltenShellKey = new HotkeyNode(Keys.Q);
+            MoltenShellConnectedSkill = new RangeNode<int>(1, 1, 8);
+            MoltenShellMaxHP = new RangeNode<int>(50, 0, 100);
 
             PhaseRun = new ToggleNode(false);
             PhaseRunKey = new HotkeyNode(Keys.R);
@@ -75,46 +86,74 @@ namespace BuffUtil
 
         #endregion
 
-        #region Phase Run
+        #region Immortal Call
 
-        [Menu("Phase Run", 3)] public ToggleNode PhaseRun { get; set; }
+        [Menu("Immortal Call", 3)] public ToggleNode ImmortalCall { get; set; }
 
-        [Menu("Phase Run Key", 31, 3)] public HotkeyNode PhaseRunKey { get; set; }
+        [Menu("Immortal Call Key", 31, 3)] public HotkeyNode ImmortalCallKey { get; set; }
 
         [Menu("Connected Skill", "Set the skill slot (1 = top left, 8 = bottom right)", 32, 3)]
-        public RangeNode<int> PhaseRunConnectedSkill { get; set; }
+        public RangeNode<int> ImmortalCallConnectedSkill { get; set; }
 
         [Menu("Max HP", "HP percent above which skill is not cast", 33, 3)]
+        public RangeNode<int> ImmortalCallMaxHP { get; set; }
+
+        #endregion
+
+        #region Molten Shell
+
+        [Menu("Molten Shell", 4)] public ToggleNode MoltenShell { get; set; }
+
+        [Menu("Molten Shell Key", 41, 4)] public HotkeyNode MoltenShellKey { get; set; }
+
+        [Menu("Connected Skill", "Set the skill slot (1 = top left, 8 = bottom right)", 42, 4)]
+        public RangeNode<int> MoltenShellConnectedSkill { get; set; }
+
+        [Menu("Max HP", "HP percent above which skill is not cast", 43, 4)]
+        public RangeNode<int> MoltenShellMaxHP { get; set; }
+
+        #endregion
+
+        #region Phase Run
+
+        [Menu("Phase Run", 5)] public ToggleNode PhaseRun { get; set; }
+
+        [Menu("Phase Run Key", 51, 5)] public HotkeyNode PhaseRunKey { get; set; }
+
+        [Menu("Connected Skill", "Set the skill slot (1 = top left, 8 = bottom right)", 52, 5)]
+        public RangeNode<int> PhaseRunConnectedSkill { get; set; }
+
+        [Menu("Max HP", "HP percent above which skill is not cast", 53, 5)]
         public RangeNode<int> PhaseRunMaxHP { get; set; }
 
         #endregion
 
         #region Blade Flurry
 
-        [Menu("Blade Flurry", "Use mouse click to release Blade Flurry charges", 4)] public ToggleNode BladeFlurry { get; set; }
+        [Menu("Blade Flurry", "Use mouse click to release Blade Flurry charges", 6)] public ToggleNode BladeFlurry { get; set; }
 
-        [Menu("Min charges", "Minimal amount of BF charges to release", 41, 4)]
+        [Menu("Min charges", "Minimal amount of BF charges to release", 61, 6)]
         public RangeNode<int> BladeFlurryMinCharges { get; set; }
 
-        [Menu("Use left click", "Use left click instead of right click to release charges", 42, 4)] 
+        [Menu("Use left click", "Use left click instead of right click to release charges", 62, 6)] 
         public ToggleNode BladeFlurryUseLeftClick { get; set; }
         
-        [Menu("Wait for Infused Channeling buff", "Wait for Infused Channeling buff before release", 43, 4)] 
+        [Menu("Wait for Infused Channeling buff", "Wait for Infused Channeling buff before release", 63, 6)] 
         public ToggleNode BladeFlurryWaitForInfused { get; set; }
 
         #endregion
 
         #region Scourge Arrow
 
-        [Menu("Scourge Arrow", "Use mouse click to release Scourge Arrow charges", 5)] public ToggleNode ScourgeArrow { get; set; }
+        [Menu("Scourge Arrow", "Use mouse click to release Scourge Arrow charges", 7)] public ToggleNode ScourgeArrow { get; set; }
 
-        [Menu("Min charges", "Minimal amount of BF charges to release", 51, 5)]
+        [Menu("Min charges", "Minimal amount of BF charges to release", 71, 7)]
         public RangeNode<int> ScourgeArrowMinCharges { get; set; }
 
-        [Menu("Use left click", "Use left click instead of right click to release charges", 52, 5)] 
+        [Menu("Use left click", "Use left click instead of right click to release charges", 72, 7)] 
         public ToggleNode ScourgeArrowUseLeftClick { get; set; }
         
-        [Menu("Wait for Infused Channeling buff", "Wait for Infused Channeling buff before release", 53, 5)] 
+        [Menu("Wait for Infused Channeling buff", "Wait for Infused Channeling buff before release", 73, 7)] 
         public ToggleNode ScourgeArrowWaitForInfused { get; set; }
         #endregion
 

@@ -16,28 +16,37 @@ namespace BuffUtil
         private const string kSteelSkinBuffName = "steelskin";
         private const string kSteelSkinName = "QuicKGuard";
         private const string kSteelSkinInternalName = "steelskin";
-        
+
+        private const string kImmortalCallBuffName = "mortal_call";
+        private const string kImmortalCallName = "ImmortalCall";
+        private const string kImmortalCallInternalName = "mortal_call";
+
+        private const string kMoltenShellBuffName = "molten_shell_shield";
+        private const string kMoltenShellName = "MoltenShell";
+        private const string kMoltenShellInternalName = "molten_shell_barrier";
+
         private const string kPhaseRunBuffName1 = "new_phase_run";
         private const string kPhaseRunBuffName2 = "new_phase_run_damage";
         private const string kPhaseRunName = "NewPhaseRun";
         private const string kPhaseRunInternalName = "new_phase_run";
-        
+
         private const string kBloodRageBuffName = "blood_rage";
         private const string kBloodRageName = "BloodRage";
         private const string kBloodRageInternalName = "blood_rage";
-        
+
         private const string kBladeFlurryBuffName = "charged_attack";
         private const string kInfusedChannelingBuffName = "storm_barrier_support_damage";
-        
+
         private const string kScourgeArrowBuffName = "virulent_arrow_counter";
-        
+
         private const string kGracePeriodBuffName = "grace_period";
 
-        private static readonly TimeSpan kSteelSkinMinTimeBetweenCasts = TimeSpan.FromSeconds(4.5);
+        private static readonly TimeSpan kSteelSkinMinTimeBetweenCasts = TimeSpan.FromSeconds(1);
+        private static readonly TimeSpan kImmortalCallMinTimeBetweenCasts = TimeSpan.FromSeconds(1);
+        private static readonly TimeSpan kMoltenShellMinTimeBetweenCasts = TimeSpan.FromSeconds(1);
         private static readonly TimeSpan kBloodRageMinTimeBetweenCasts = TimeSpan.FromSeconds(1);
-        private static readonly TimeSpan kPhaseRunMinTimeBetweenCasts = TimeSpan.FromSeconds(4);
-        private static readonly TimeSpan kExtraMinTime = TimeSpan.FromSeconds(0.15);
-        
+        private static readonly TimeSpan kPhaseRunMinTimeBetweenCasts = TimeSpan.FromSeconds(1);
+
         private readonly HashSet<EntityWrapper> loadedMonsters = new HashSet<EntityWrapper>();
         private readonly object loadedMonstersLock = new object();
 
@@ -45,9 +54,12 @@ namespace BuffUtil
         private List<ActorSkill> skills;
         private DateTime? currentTime;
         private InputSimulator inputSimulator;
+        private Random rand;
         private DateTime? lastBloodRageCast;
         private DateTime? lastPhaseRunCast;
         private DateTime? lastSteelSkinCast;
+        private DateTime? lastImmortalCallCast;
+        private DateTime? lastMoltenShellCast;
         private float HPPercent;
         private float MPPercent;
         private int? nearbyMonsterCount;
@@ -58,6 +70,7 @@ namespace BuffUtil
             base.Initialise();
             PluginName = "BuffUtil";
             inputSimulator = new InputSimulator();
+            rand = new Random();
 
             showErrors = !Settings.SilenceErrors;
             Settings.SilenceErrors.OnValueChanged += delegate { showErrors = !Settings.SilenceErrors; };
@@ -89,6 +102,8 @@ namespace BuffUtil
                 HandleScourgeArrow();
                 HandleBloodRage();
                 HandleSteelSkin();
+                HandleImmortalCall();
+                HandleMoltenShell();
                 HandlePhaseRun();
             }
             catch (Exception ex)
@@ -192,7 +207,7 @@ namespace BuffUtil
                     return;
 
                 if (lastBloodRageCast.HasValue && currentTime - lastBloodRageCast.Value <
-                    kBloodRageMinTimeBetweenCasts + kExtraMinTime)
+                    kBloodRageMinTimeBetweenCasts)
                     return;
 
                 if (HPPercent > Settings.BloodRageMaxHP.Value || MPPercent > Settings.BloodRageMaxMP)
@@ -217,7 +232,7 @@ namespace BuffUtil
                 if (Settings.Debug)
                     LogMessage("Casting Blood Rage", 1);
                 inputSimulator.Keyboard.KeyPress((VirtualKeyCode) Settings.BloodRageKey.Value);
-                lastBloodRageCast = currentTime;
+                lastBloodRageCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble(0, 0.2));
             }
             catch (Exception ex)
             {
@@ -234,7 +249,7 @@ namespace BuffUtil
                     return;
 
                 if (lastSteelSkinCast.HasValue && currentTime - lastSteelSkinCast.Value <
-                    kSteelSkinMinTimeBetweenCasts + kExtraMinTime)
+                    kSteelSkinMinTimeBetweenCasts)
                     return;
 
                 if (HPPercent > Settings.SteelSkinMaxHP.Value)
@@ -259,12 +274,96 @@ namespace BuffUtil
                 if (Settings.Debug)
                     LogMessage("Casting Steel Skin", 1);
                 inputSimulator.Keyboard.KeyPress((VirtualKeyCode) Settings.SteelSkinKey.Value);
-                lastSteelSkinCast = currentTime;
+                lastSteelSkinCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble(0, 0.2));
             }
             catch (Exception ex)
             {
                 if (showErrors)
                     LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleSteelSkin)}: {ex.StackTrace}", 3f);
+            }
+        }
+
+        private void HandleImmortalCall()
+        {
+            try
+            {
+                if (!Settings.ImmortalCall)
+                    return;
+
+                if (lastImmortalCallCast.HasValue && currentTime - lastImmortalCallCast.Value <
+                    kImmortalCallMinTimeBetweenCasts)
+                    return;
+
+                if (HPPercent > Settings.ImmortalCallMaxHP.Value)
+                    return;
+
+                var hasBuff = HasBuff(kImmortalCallBuffName);
+                if (!hasBuff.HasValue || hasBuff.Value)
+                    return;
+
+                var skill = GetUsableSkill(kImmortalCallName, kImmortalCallInternalName,
+                    Settings.ImmortalCallConnectedSkill.Value);
+                if (skill == null)
+                {
+                    if (Settings.Debug)
+                        LogMessage("Can not cast Immortal Call - not found in usable skills.", 1);
+                    return;
+                }
+
+                if (!NearbyMonsterCheck())
+                    return;
+
+                if (Settings.Debug)
+                    LogMessage("Casting Immortal Call", 1);
+                inputSimulator.Keyboard.KeyPress((VirtualKeyCode) Settings.ImmortalCallKey.Value);
+                lastImmortalCallCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble(0, 0.2));
+            }
+            catch (Exception ex)
+            {
+                if (showErrors)
+                    LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleImmortalCall)}: {ex.StackTrace}", 3f);
+            }
+        }
+
+        private void HandleMoltenShell()
+        {
+            try
+            {
+                if (!Settings.MoltenShell)
+                    return;
+
+                if (lastMoltenShellCast.HasValue && currentTime - lastMoltenShellCast.Value <
+                    kMoltenShellMinTimeBetweenCasts)
+                    return;
+
+                if (HPPercent > Settings.MoltenShellMaxHP.Value)
+                    return;
+
+                var hasBuff = HasBuff(kMoltenShellBuffName);
+                if (!hasBuff.HasValue || hasBuff.Value)
+                    return;
+
+                var skill = GetUsableSkill(kMoltenShellName, kMoltenShellInternalName,
+                    Settings.MoltenShellConnectedSkill.Value);
+                if (skill == null)
+                {
+                    if (Settings.Debug)
+                        LogMessage("Can not cast Molten Shell - not found in usable skills.", 1);
+                    return;
+                }
+
+                if (!NearbyMonsterCheck())
+                    return;
+
+                if (Settings.Debug)
+                    LogMessage("Casting Molten Shell", 1);
+                inputSimulator.Keyboard.KeyPress((VirtualKeyCode) Settings.MoltenShellKey.Value);
+                lastMoltenShellCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble(0, 0.2));
+            }
+            catch (Exception ex)
+            {
+                if (showErrors)
+                    LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleMoltenShell)}: {ex.StackTrace}", 3f);
             }
         }
 
@@ -276,7 +375,7 @@ namespace BuffUtil
                     return;
 
                 if (lastPhaseRunCast.HasValue && currentTime - lastPhaseRunCast.Value <
-                    kPhaseRunMinTimeBetweenCasts + kExtraMinTime)
+                    kPhaseRunMinTimeBetweenCasts)
                     return;
 
                 if (HPPercent > Settings.PhaseRunMaxHP.Value)
@@ -301,7 +400,7 @@ namespace BuffUtil
                 if (Settings.Debug)
                     LogMessage("Casting Phase Run", 1);
                 inputSimulator.Keyboard.KeyPress((VirtualKeyCode) Settings.PhaseRunKey.Value);
-                lastPhaseRunCast = currentTime;
+                lastPhaseRunCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble(0, 0.2));
             }
             catch (Exception ex)
             {
@@ -404,7 +503,7 @@ namespace BuffUtil
             }
 
             return skills.FirstOrDefault(s =>
-                (s.Name == skillName || s.InternalName == skillInternalName) && s.CanBeUsed &&
+                (s.Name == skillName || s.InternalName == skillInternalName) && s.CanBeUsed && s.AllowedToCast &&
                 s.SkillSlotIndex == skillSlotIndex - 1);
         }
 

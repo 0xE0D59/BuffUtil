@@ -37,16 +37,10 @@ namespace BuffUtil
             RequireMinMonsterCount = new ToggleNode(false);
             NearbyMonsterCount = new RangeNode<int>(1, 1, 30);
             NearbyMonsterMaxDistance = new RangeNode<int>(500, 1, 2000);
-            Debug = new ToggleNode(false);
             DisableInHideout = new ToggleNode(true);
+            Debug = new ToggleNode(false);
+            SilenceErrors = new ToggleNode(false);
         }
-
-        #region Debug
-
-        [Menu("Debug", "Print debug messages?", 20)]
-        public ToggleNode Debug { get; set; }
-
-        #endregion
 
         #region Blood Rage
 
@@ -139,6 +133,12 @@ namespace BuffUtil
 
         [Menu("Disable in hideout", "Disable the plugin in hideout?", 104, 10)]
         public ToggleNode DisableInHideout { get; set; }
+        
+        [Menu("Debug", "Print debug messages?", 105, 10)]
+        public ToggleNode Debug { get; set; }
+        
+        [Menu("Silence errors", "Hide error messages?", 106, 10)]
+        public ToggleNode SilenceErrors { get; set; }
 
         #endregion
     }

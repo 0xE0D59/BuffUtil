@@ -16,47 +16,51 @@ namespace BuffUtil
         private const string kSteelSkinBuffName = "steelskin";
         private const string kSteelSkinName = "QuicKGuard";
         private const string kSteelSkinInternalName = "steelskin";
-
+        
         private const string kPhaseRunBuffName1 = "new_phase_run";
         private const string kPhaseRunBuffName2 = "new_phase_run_damage";
         private const string kPhaseRunName = "NewPhaseRun";
         private const string kPhaseRunInternalName = "new_phase_run";
-
+        
         private const string kBloodRageBuffName = "blood_rage";
         private const string kBloodRageName = "BloodRage";
         private const string kBloodRageInternalName = "blood_rage";
-
+        
         private const string kBladeFlurryBuffName = "charged_attack";
         private const string kInfusedChannelingBuffName = "storm_barrier_support_damage";
-
+        
         private const string kScourgeArrowBuffName = "virulent_arrow_counter";
-
+        
         private const string kGracePeriodBuffName = "grace_period";
 
         private static readonly TimeSpan kSteelSkinMinTimeBetweenCasts = TimeSpan.FromSeconds(4.5);
         private static readonly TimeSpan kBloodRageMinTimeBetweenCasts = TimeSpan.FromSeconds(1);
         private static readonly TimeSpan kPhaseRunMinTimeBetweenCasts = TimeSpan.FromSeconds(4);
         private static readonly TimeSpan kExtraMinTime = TimeSpan.FromSeconds(0.15);
+        
         private readonly HashSet<EntityWrapper> loadedMonsters = new HashSet<EntityWrapper>();
         private readonly object loadedMonstersLock = new object();
 
         private List<Buff> buffs;
+        private List<ActorSkill> skills;
         private DateTime? currentTime;
-
         private InputSimulator inputSimulator;
         private DateTime? lastBloodRageCast;
-        private DateTime? lastSteelSkinCast;
         private DateTime? lastPhaseRunCast;
-        private int? nearbyMonsterCount;
-        private List<ActorSkill> skills;
+        private DateTime? lastSteelSkinCast;
         private float HPPercent;
         private float MPPercent;
+        private int? nearbyMonsterCount;
+        private bool showErrors = true;
 
         public override void Initialise()
         {
             base.Initialise();
             PluginName = "BuffUtil";
             inputSimulator = new InputSimulator();
+
+            showErrors = !Settings.SilenceErrors;
+            Settings.SilenceErrors.OnValueChanged += delegate { showErrors = !Settings.SilenceErrors; };
         }
 
         public override void OnPluginDestroyForHotReload()
@@ -89,7 +93,8 @@ namespace BuffUtil
             }
             catch (Exception ex)
             {
-                LogError($"Exception in {nameof(BuffUtil)}.{nameof(OnExecute)}: {ex.StackTrace}", 3f);
+                if (showErrors)
+                    LogError($"Exception in {nameof(BuffUtil)}.{nameof(OnExecute)}: {ex.StackTrace}", 3f);
             }
         }
 
@@ -131,7 +136,8 @@ namespace BuffUtil
             }
             catch (Exception ex)
             {
-                LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleBloodRage)}: {ex.StackTrace}", 3f);
+                if (showErrors)
+                    LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleBloodRage)}: {ex.StackTrace}", 3f);
             }
         }
 
@@ -173,7 +179,8 @@ namespace BuffUtil
             }
             catch (Exception ex)
             {
-                LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleScourgeArrow)}: {ex.StackTrace}", 3f);
+                if (showErrors)
+                    LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleScourgeArrow)}: {ex.StackTrace}", 3f);
             }
         }
 
@@ -214,7 +221,8 @@ namespace BuffUtil
             }
             catch (Exception ex)
             {
-                LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleBloodRage)}: {ex.StackTrace}", 3f);
+                if (showErrors)
+                    LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleBloodRage)}: {ex.StackTrace}", 3f);
             }
         }
 
@@ -255,7 +263,8 @@ namespace BuffUtil
             }
             catch (Exception ex)
             {
-                LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleSteelSkin)}: {ex.StackTrace}", 3f);
+                if (showErrors)
+                    LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleSteelSkin)}: {ex.StackTrace}", 3f);
             }
         }
 
@@ -296,7 +305,8 @@ namespace BuffUtil
             }
             catch (Exception ex)
             {
-                LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleSteelSkin)}: {ex.StackTrace}", 3f);
+                if (showErrors)
+                    LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleSteelSkin)}: {ex.StackTrace}", 3f);
             }
         }
 
@@ -338,7 +348,8 @@ namespace BuffUtil
             }
             catch (Exception ex)
             {
-                LogError($"Exception in {nameof(BuffUtil)}.{nameof(OnPreExecute)}: {ex.StackTrace}", 3f);
+                if (showErrors)
+                    LogError($"Exception in {nameof(BuffUtil)}.{nameof(OnPreExecute)}: {ex.StackTrace}", 3f);
                 return false;
             }
         }
@@ -354,7 +365,8 @@ namespace BuffUtil
             }
             catch (Exception ex)
             {
-                LogError($"Exception in {nameof(BuffUtil)}.{nameof(OnPostExecute)}: {ex.StackTrace}", 3f);
+                if (showErrors)
+                    LogError($"Exception in {nameof(BuffUtil)}.{nameof(OnPostExecute)}: {ex.StackTrace}", 3f);
             }
         }
 
@@ -362,7 +374,8 @@ namespace BuffUtil
         {
             if (buffs == null)
             {
-                LogError("Requested buff check, but buff list is empty.", 1);
+                if (showErrors)
+                    LogError("Requested buff check, but buff list is empty.", 1);
                 return null;
             }
 
@@ -373,7 +386,8 @@ namespace BuffUtil
         {
             if (buffs == null)
             {
-                LogError("Requested buff retrieval, but buff list is empty.", 1);
+                if (showErrors)
+                    LogError("Requested buff retrieval, but buff list is empty.", 1);
                 return null;
             }
 
@@ -384,7 +398,8 @@ namespace BuffUtil
         {
             if (skills == null)
             {
-                LogError("Requested usable skill, but skill list is empty.", 1);
+                if (showErrors)
+                    LogError("Requested usable skill, but skill list is empty.", 1);
                 return null;
             }
 
@@ -413,10 +428,8 @@ namespace BuffUtil
             var maxDistanceSquared = maxDistance * maxDistance;
             var monsterCount = 0;
             foreach (var monster in localLoadedMonsters)
-            {
                 if (IsValidNearbyMonster(monster, playerPosition, maxDistanceSquared))
                     monsterCount++;
-            }
 
             nearbyMonsterCount = monsterCount;
 
@@ -444,7 +457,8 @@ namespace BuffUtil
             }
             catch (Exception ex)
             {
-                LogError($"Exception in {nameof(BuffUtil)}.{nameof(IsValidNearbyMonster)}: {ex.StackTrace}", 3f);
+                if (showErrors)
+                    LogError($"Exception in {nameof(BuffUtil)}.{nameof(IsValidNearbyMonster)}: {ex.StackTrace}", 3f);
                 return false;
             }
         }
@@ -454,13 +468,17 @@ namespace BuffUtil
             if (!entityWrapper.IsMonster()) return;
 
             lock (loadedMonstersLock)
+            {
                 loadedMonsters.Add(entityWrapper);
+            }
         }
 
         public override void EntityRemoved(EntityWrapper entityWrapper)
         {
             lock (loadedMonstersLock)
+            {
                 loadedMonsters.Remove(entityWrapper);
+            }
         }
     }
 }

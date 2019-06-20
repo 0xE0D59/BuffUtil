@@ -7,6 +7,7 @@ using PoeHUD.Models;
 using PoeHUD.Plugins;
 using PoeHUD.Poe.Components;
 using PoeHUD.Poe.RemoteMemoryObjects;
+using SharpDX;
 
 namespace BuffUtil
 {
@@ -15,7 +16,7 @@ namespace BuffUtil
         private const string kSteelSkinBuffName = "steelskin";
         private const string kSteelSkinName = "QuicKGuard";
         private const string kSteelSkinInternalName = "steelskin";
-        
+
         private const string kPhaseRunBuffName1 = "new_phase_run";
         private const string kPhaseRunBuffName2 = "new_phase_run_damage";
         private const string kPhaseRunName = "NewPhaseRun";
@@ -27,7 +28,7 @@ namespace BuffUtil
 
         private const string kBladeFlurryBuffName = "charged_attack";
         private const string kInfusedChannelingBuffName = "storm_barrier_support_damage";
-        
+
         private const string kScourgeArrowBuffName = "virulent_arrow_counter";
 
         private const string kGracePeriodBuffName = "grace_period";
@@ -94,7 +95,6 @@ namespace BuffUtil
 
         private void HandleBladeFlurry()
         {
-            
             try
             {
                 if (!Settings.BladeFlurry)
@@ -128,17 +128,15 @@ namespace BuffUtil
                     inputSimulator.Mouse.RightButtonUp();
                     inputSimulator.Mouse.RightButtonDown();
                 }
-                
             }
             catch (Exception ex)
             {
                 LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleBloodRage)}: {ex.StackTrace}", 3f);
             }
         }
-        
+
         private void HandleScourgeArrow()
         {
-            
             try
             {
                 if (!Settings.ScourgeArrow)
@@ -151,7 +149,7 @@ namespace BuffUtil
                 var charges = stacksBuff.Charges;
                 if (charges < Settings.ScourgeArrowMinCharges.Value)
                     return;
-                
+
                 if (Settings.ScourgeArrowWaitForInfused)
                 {
                     var hasInfusedBuff = HasBuff(kInfusedChannelingBuffName);
@@ -172,7 +170,6 @@ namespace BuffUtil
                     inputSimulator.Mouse.RightButtonUp();
                     inputSimulator.Mouse.RightButtonDown();
                 }
-                
             }
             catch (Exception ex)
             {
@@ -336,7 +333,7 @@ namespace BuffUtil
 
                 HPPercent = 100f * playerLife.HPPercentage;
                 MPPercent = 100f * playerLife.MPPercentage;
-                
+
                 return true;
             }
             catch (Exception ex)
@@ -371,7 +368,7 @@ namespace BuffUtil
 
             return buffs.Any(b => string.Compare(b.Name, buffName, StringComparison.OrdinalIgnoreCase) == 0);
         }
-        
+
         private Buff GetBuff(string buffName)
         {
             if (buffs == null)
@@ -413,21 +410,12 @@ namespace BuffUtil
             }
 
             var maxDistance = Settings.NearbyMonsterMaxDistance.Value;
-            var maxDistanceSquare = maxDistance * maxDistance;
+            var maxDistanceSquared = maxDistance * maxDistance;
             var monsterCount = 0;
             foreach (var monster in localLoadedMonsters)
             {
-                if (!monster.HasComponent<Monster>() || !monster.IsValid || !monster.IsAlive || !monster.IsHostile ||
-                    monster.Invincible || monster.CannotBeDamaged)
-                    continue;
-
-                var monsterPosition = monster.Pos;
-
-                var xDiff = playerPosition.X - monsterPosition.X;
-                var yDiff = playerPosition.Y - monsterPosition.Y;
-                var monsterDistanceSquare = xDiff * xDiff + yDiff * yDiff;
-
-                if (monsterDistanceSquare <= maxDistanceSquare) monsterCount++;
+                if (IsValidNearbyMonster(monster, playerPosition, maxDistanceSquared))
+                    monsterCount++;
             }
 
             nearbyMonsterCount = monsterCount;
@@ -439,21 +427,40 @@ namespace BuffUtil
             return result;
         }
 
+        private bool IsValidNearbyMonster(EntityWrapper monster, Vector3 playerPosition, int maxDistanceSquared)
+        {
+            try
+            {
+                if (!monster.IsDamageableMonster())
+                    return false;
+
+                var monsterPosition = monster.Pos;
+
+                var xDiff = playerPosition.X - monsterPosition.X;
+                var yDiff = playerPosition.Y - monsterPosition.Y;
+                var monsterDistanceSquare = xDiff * xDiff + yDiff * yDiff;
+
+                return monsterDistanceSquare <= maxDistanceSquared;
+            }
+            catch (Exception ex)
+            {
+                LogError($"Exception in {nameof(BuffUtil)}.{nameof(IsValidNearbyMonster)}: {ex.StackTrace}", 3f);
+                return false;
+            }
+        }
+
         public override void EntityAdded(EntityWrapper entityWrapper)
         {
-            if (entityWrapper.HasComponent<Monster>())
-                lock (loadedMonstersLock)
-                {
-                    loadedMonsters.Add(entityWrapper);
-                }
+            if (!entityWrapper.IsMonster()) return;
+
+            lock (loadedMonstersLock)
+                loadedMonsters.Add(entityWrapper);
         }
 
         public override void EntityRemoved(EntityWrapper entityWrapper)
         {
             lock (loadedMonstersLock)
-            {
                 loadedMonsters.Remove(entityWrapper);
-            }
         }
     }
 }

@@ -32,6 +32,7 @@ namespace BuffUtil
             ScourgeArrow = new ToggleNode(false);
             ScourgeArrowMinCharges = new RangeNode<int>(5, 1, 6);
             ScourgeArrowUseLeftClick = new ToggleNode(false);
+            ScourgeArrowWaitForInfused = new ToggleNode(true);
 
             RequireMinMonsterCount = new ToggleNode(false);
             NearbyMonsterCount = new RangeNode<int>(1, 1, 30);
@@ -118,6 +119,9 @@ namespace BuffUtil
 
         [Menu("Use left click", "Use left click instead of right click to release charges", 52, 5)] 
         public ToggleNode ScourgeArrowUseLeftClick { get; set; }
+        
+        [Menu("Wait for Infused Channeling buff", "Wait for Infused Channeling buff before release", 53, 5)] 
+        public ToggleNode ScourgeArrowWaitForInfused { get; set; }
         #endregion
 
         #region Misc

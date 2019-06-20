@@ -151,6 +151,13 @@ namespace BuffUtil
                 var charges = stacksBuff.Charges;
                 if (charges < Settings.ScourgeArrowMinCharges.Value)
                     return;
+                
+                if (Settings.ScourgeArrowWaitForInfused)
+                {
+                    var hasInfusedBuff = HasBuff(kInfusedChannelingBuffName);
+                    if (!hasInfusedBuff.HasValue || !hasInfusedBuff.Value)
+                        return;
+                }
 
                 if (Settings.Debug)
                     LogMessage($"Releasing Scourge Arrow at {charges} charges.", 1);

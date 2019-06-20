@@ -213,8 +213,10 @@ namespace BuffUtil
             {
                 if (!Settings.Enable)
                     return false;
-                var inTown = GameController.Area.CurrentArea.IsTown || GameController.Area.CurrentArea.IsHideout;
+                var inTown = GameController.Area.CurrentArea.IsTown;
                 if (inTown)
+                    return false;
+                if (Settings.DisableInHideout && GameController.Area.CurrentArea.IsHideout)
                     return false;
                 var player = GameController.Game.IngameState.Data.LocalPlayer;
                 var playerLife = player.GetComponent<Life>();

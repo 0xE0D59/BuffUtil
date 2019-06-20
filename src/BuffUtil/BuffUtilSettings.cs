@@ -28,6 +28,7 @@ namespace BuffUtil
             NearbyMonsterCount = new RangeNode<int>(1, 1, 30);
             NearbyMonsterMaxDistance = new RangeNode<int>(500, 1, 2000);
             Debug = new ToggleNode(false);
+            DisableInHideout = new ToggleNode(true);
         }
 
         #region Debug
@@ -97,6 +98,9 @@ namespace BuffUtil
 
         [Menu("Range", "Max distance of monsters to player to count as nearby", 103, 10)]
         public RangeNode<int> NearbyMonsterMaxDistance { get; set; }
+
+        [Menu("Disable in hideout", "Disable the plugin in hideout?", 103, 10)]
+        public ToggleNode DisableInHideout { get; set; }
 
         #endregion
     }

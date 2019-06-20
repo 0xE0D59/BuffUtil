@@ -22,6 +22,8 @@ namespace BuffUtil
 
         private const string kBladeFlurryBuffName = "charged_attack";
         private const string kInfusedChannelingBuffName = "storm_barrier_support_damage";
+        
+        private const string kScourgeArrowBuffName = "virulent_arrow_counter";
 
         private const string kGracePeriodBuffName = "grace_period";
 
@@ -72,12 +74,13 @@ namespace BuffUtil
             try
             {
                 HandleBladeFlurry();
+                HandleScourgeArrow();
                 HandleBloodRage();
                 HandleSteelSkin();
             }
             catch (Exception ex)
             {
-                LogError($"Exception in {nameof(BuffUtil)}.{nameof(OnExecute)}: {ex.Message}", 3f);
+                LogError($"Exception in {nameof(BuffUtil)}.{nameof(OnExecute)}: {ex.StackTrace}", 3f);
             }
         }
 
@@ -121,7 +124,44 @@ namespace BuffUtil
             }
             catch (Exception ex)
             {
-                LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleBloodRage)}: {ex.Message}", 3f);
+                LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleBloodRage)}: {ex.StackTrace}", 3f);
+            }
+        }
+        
+        private void HandleScourgeArrow()
+        {
+            
+            try
+            {
+                if (!Settings.ScourgeArrow)
+                    return;
+
+                var stacksBuff = GetBuff(kScourgeArrowBuffName);
+                if (stacksBuff == null)
+                    return;
+
+                var charges = stacksBuff.Charges;
+                if (charges < Settings.ScourgeArrowMinCharges.Value)
+                    return;
+
+                if (Settings.Debug)
+                    LogMessage($"Releasing Scourge Arrow at {charges} charges.", 1);
+
+                if (Settings.ScourgeArrowUseLeftClick)
+                {
+                    inputSimulator.Mouse.LeftButtonUp();
+                    inputSimulator.Mouse.LeftButtonDown();
+                }
+                else
+                {
+                    inputSimulator.Mouse.RightButtonUp();
+                    inputSimulator.Mouse.RightButtonDown();
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleScourgeArrow)}: {ex.StackTrace}", 3f);
             }
         }
 
@@ -162,7 +202,7 @@ namespace BuffUtil
             }
             catch (Exception ex)
             {
-                LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleBloodRage)}: {ex.Message}", 3f);
+                LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleBloodRage)}: {ex.StackTrace}", 3f);
             }
         }
 
@@ -203,7 +243,7 @@ namespace BuffUtil
             }
             catch (Exception ex)
             {
-                LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleSteelSkin)}: {ex.Message}", 3f);
+                LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleSteelSkin)}: {ex.StackTrace}", 3f);
             }
         }
 
@@ -245,7 +285,7 @@ namespace BuffUtil
             }
             catch (Exception ex)
             {
-                LogError($"Exception in {nameof(BuffUtil)}.{nameof(OnPreExecute)}: {ex.Message}", 3f);
+                LogError($"Exception in {nameof(BuffUtil)}.{nameof(OnPreExecute)}: {ex.StackTrace}", 3f);
                 return false;
             }
         }
@@ -261,7 +301,7 @@ namespace BuffUtil
             }
             catch (Exception ex)
             {
-                LogError($"Exception in {nameof(BuffUtil)}.{nameof(OnPostExecute)}: {ex.Message}", 3f);
+                LogError($"Exception in {nameof(BuffUtil)}.{nameof(OnPostExecute)}: {ex.StackTrace}", 3f);
             }
         }
 

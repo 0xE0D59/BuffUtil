@@ -24,6 +24,10 @@ namespace BuffUtil
             BladeFlurryUseLeftClick = new ToggleNode(false);
             BladeFlurryWaitForInfused = new ToggleNode(true);
 
+            ScourgeArrow = new ToggleNode(false);
+            ScourgeArrowMinCharges = new RangeNode<int>(5, 1, 6);
+            ScourgeArrowUseLeftClick = new ToggleNode(false);
+
             RequireMinMonsterCount = new ToggleNode(false);
             NearbyMonsterCount = new RangeNode<int>(1, 1, 30);
             NearbyMonsterMaxDistance = new RangeNode<int>(500, 1, 2000);
@@ -33,7 +37,7 @@ namespace BuffUtil
 
         #region Debug
 
-        [Menu("Debug", "Print debug messages?", 4)]
+        [Menu("Debug", "Print debug messages?", 20)]
         public ToggleNode Debug { get; set; }
 
         #endregion
@@ -84,6 +88,17 @@ namespace BuffUtil
         [Menu("Wait for Infused Channeling buff", "Wait for Infused Channeling buff before release", 33, 3)] 
         public ToggleNode BladeFlurryWaitForInfused { get; set; }
 
+        #endregion
+
+        #region Scourge Arrow
+
+        [Menu("Scourge Arrow", "Use mouse click to release Scourge Arrow charges", 4)] public ToggleNode ScourgeArrow { get; set; }
+
+        [Menu("Min charges", "Minimal amount of BF charges to release", 41, 4)]
+        public RangeNode<int> ScourgeArrowMinCharges { get; set; }
+
+        [Menu("Use left click", "Use left click instead of right click to release charges", 42, 4)] 
+        public ToggleNode ScourgeArrowUseLeftClick { get; set; }
         #endregion
 
         #region Misc

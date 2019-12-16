@@ -1,11 +1,11 @@
-﻿using System;
-using System.Windows.Forms;
-using PoeHUD.Hud.Settings;
-using PoeHUD.Plugins;
+﻿using System.Windows.Forms;
+using ExileCore.Shared.Interfaces;
+using ExileCore.Shared.Nodes;
+using ExileCore.Shared.Attributes;
 
 namespace BuffUtil
 {
-    public class BuffUtilSettings : SettingsBase
+    public class BuffUtilSettings : ISettings
     {
         public BuffUtilSettings()
         {
@@ -54,6 +54,8 @@ namespace BuffUtil
         }
 
         #region Blood Rage
+
+        public ToggleNode Enable { get; set; }
 
         [Menu("Blood Rage", 1)] public ToggleNode BloodRage { get; set; }
 

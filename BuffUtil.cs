@@ -3,51 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using WindowsInput;
 using WindowsInput.Native;
-using PoeHUD.Models;
-using PoeHUD.Plugins;
-using PoeHUD.Poe.Components;
-using PoeHUD.Poe.RemoteMemoryObjects;
+using ExileCore;
+using ExileCore.PoEMemory.Components;
+using ExileCore.PoEMemory.MemoryObjects;
 using SharpDX;
 
 namespace BuffUtil
 {
     public class BuffUtil : BaseSettingsPlugin<BuffUtilSettings>
     {
-        private const string kSteelSkinBuffName = "steelskin";
-        private const string kSteelSkinName = "QuicKGuard";
-        private const string kSteelSkinInternalName = "steelskin";
-
-        private const string kImmortalCallBuffName = "mortal_call";
-        private const string kImmortalCallName = "ImmortalCall";
-        private const string kImmortalCallInternalName = "mortal_call";
-
-        private const string kMoltenShellBuffName = "molten_shell_shield";
-        private const string kMoltenShellName = "MoltenShell";
-        private const string kMoltenShellInternalName = "molten_shell_barrier";
-
-        private const string kPhaseRunBuffName1 = "new_phase_run";
-        private const string kPhaseRunBuffName2 = "new_phase_run_damage";
-        private const string kPhaseRunName = "NewPhaseRun";
-        private const string kPhaseRunInternalName = "new_phase_run";
-
-        private const string kBloodRageBuffName = "blood_rage";
-        private const string kBloodRageName = "BloodRage";
-        private const string kBloodRageInternalName = "blood_rage";
-
-        private const string kBladeFlurryBuffName = "charged_attack";
-        private const string kInfusedChannelingBuffName = "storm_barrier_support_damage";
-
-        private const string kScourgeArrowBuffName = "virulent_arrow_counter";
-
-        private const string kGracePeriodBuffName = "grace_period";
-
-        private static readonly TimeSpan kSteelSkinMinTimeBetweenCasts = TimeSpan.FromSeconds(1);
-        private static readonly TimeSpan kImmortalCallMinTimeBetweenCasts = TimeSpan.FromSeconds(1);
-        private static readonly TimeSpan kMoltenShellMinTimeBetweenCasts = TimeSpan.FromSeconds(1);
-        private static readonly TimeSpan kBloodRageMinTimeBetweenCasts = TimeSpan.FromSeconds(1);
-        private static readonly TimeSpan kPhaseRunMinTimeBetweenCasts = TimeSpan.FromSeconds(1);
-
-        private readonly HashSet<EntityWrapper> loadedMonsters = new HashSet<EntityWrapper>();
+        private readonly HashSet<Entity> loadedMonsters = new HashSet<Entity>();
         private readonly object loadedMonstersLock = new object();
 
         private List<Buff> buffs;
@@ -65,15 +30,14 @@ namespace BuffUtil
         private int? nearbyMonsterCount;
         private bool showErrors = true;
 
-        public override void Initialise()
+        public override bool Initialise()
         {
-            base.Initialise();
-            PluginName = "BuffUtil";
             inputSimulator = new InputSimulator();
             rand = new Random();
 
             showErrors = !Settings.SilenceErrors;
             Settings.SilenceErrors.OnValueChanged += delegate { showErrors = !Settings.SilenceErrors; };
+            return base.Initialise();
         }
 
         public override void OnPluginDestroyForHotReload()
@@ -89,6 +53,7 @@ namespace BuffUtil
 
         public override void Render()
         {
+            // Should move to Tick?
             if (OnPreExecute())
                 OnExecute();
             OnPostExecute();
@@ -120,7 +85,7 @@ namespace BuffUtil
                 if (!Settings.BladeFlurry)
                     return;
 
-                var stacksBuff = GetBuff(kBladeFlurryBuffName);
+                var stacksBuff = GetBuff(C.BladeFlurry.BuffName);
                 if (stacksBuff == null)
                     return;
 
@@ -130,7 +95,7 @@ namespace BuffUtil
 
                 if (Settings.BladeFlurryWaitForInfused)
                 {
-                    var hasInfusedBuff = HasBuff(kInfusedChannelingBuffName);
+                    var hasInfusedBuff = HasBuff(C.InfusedChanneling.BuffName);
                     if (!hasInfusedBuff.HasValue || !hasInfusedBuff.Value)
                         return;
                 }
@@ -163,7 +128,7 @@ namespace BuffUtil
                 if (!Settings.ScourgeArrow)
                     return;
 
-                var stacksBuff = GetBuff(kScourgeArrowBuffName);
+                var stacksBuff = GetBuff(C.ScourgeArrow.BuffName);
                 if (stacksBuff == null)
                     return;
 
@@ -173,7 +138,7 @@ namespace BuffUtil
 
                 if (Settings.ScourgeArrowWaitForInfused)
                 {
-                    var hasInfusedBuff = HasBuff(kInfusedChannelingBuffName);
+                    var hasInfusedBuff = HasBuff(C.InfusedChanneling.BuffName);
                     if (!hasInfusedBuff.HasValue || !hasInfusedBuff.Value)
                         return;
                 }
@@ -207,17 +172,17 @@ namespace BuffUtil
                     return;
 
                 if (lastBloodRageCast.HasValue && currentTime - lastBloodRageCast.Value <
-                    kBloodRageMinTimeBetweenCasts)
+                    C.BloodRage.TimeBetweenCasts)
                     return;
 
                 if (HPPercent > Settings.BloodRageMaxHP.Value || MPPercent > Settings.BloodRageMaxMP)
                     return;
 
-                var hasBuff = HasBuff(kBloodRageBuffName);
+                var hasBuff = HasBuff(C.BloodRage.BuffName);
                 if (!hasBuff.HasValue || hasBuff.Value)
                     return;
 
-                var skill = GetUsableSkill(kBloodRageName, kBloodRageInternalName,
+                var skill = GetUsableSkill(C.BloodRage.Name, C.BloodRage.InternalName,
                     Settings.BloodRageConnectedSkill.Value);
                 if (skill == null)
                 {
@@ -249,17 +214,17 @@ namespace BuffUtil
                     return;
 
                 if (lastSteelSkinCast.HasValue && currentTime - lastSteelSkinCast.Value <
-                    kSteelSkinMinTimeBetweenCasts)
+                    C.SteelSkin.TimeBetweenCasts)
                     return;
 
                 if (HPPercent > Settings.SteelSkinMaxHP.Value)
                     return;
 
-                var hasBuff = HasBuff(kSteelSkinBuffName);
+                var hasBuff = HasBuff(C.SteelSkin.BuffName);
                 if (!hasBuff.HasValue || hasBuff.Value)
                     return;
 
-                var skill = GetUsableSkill(kSteelSkinName, kSteelSkinInternalName,
+                var skill = GetUsableSkill(C.SteelSkin.Name, C.SteelSkin.InternalName,
                     Settings.SteelSkinConnectedSkill.Value);
                 if (skill == null)
                 {
@@ -291,17 +256,17 @@ namespace BuffUtil
                     return;
 
                 if (lastImmortalCallCast.HasValue && currentTime - lastImmortalCallCast.Value <
-                    kImmortalCallMinTimeBetweenCasts)
+                    C.ImmortalCall.TimeBetweenCasts)
                     return;
 
                 if (HPPercent > Settings.ImmortalCallMaxHP.Value)
                     return;
 
-                var hasBuff = HasBuff(kImmortalCallBuffName);
+                var hasBuff = HasBuff(C.ImmortalCall.BuffName);
                 if (!hasBuff.HasValue || hasBuff.Value)
                     return;
 
-                var skill = GetUsableSkill(kImmortalCallName, kImmortalCallInternalName,
+                var skill = GetUsableSkill(C.ImmortalCall.Name, C.ImmortalCall.InternalName,
                     Settings.ImmortalCallConnectedSkill.Value);
                 if (skill == null)
                 {
@@ -333,17 +298,17 @@ namespace BuffUtil
                     return;
 
                 if (lastMoltenShellCast.HasValue && currentTime - lastMoltenShellCast.Value <
-                    kMoltenShellMinTimeBetweenCasts)
+                    C.MoltenShell.TimeBetweenCasts)
                     return;
 
                 if (HPPercent > Settings.MoltenShellMaxHP.Value)
                     return;
 
-                var hasBuff = HasBuff(kMoltenShellBuffName);
+                var hasBuff = HasBuff(C.MoltenShell.BuffName);
                 if (!hasBuff.HasValue || hasBuff.Value)
                     return;
 
-                var skill = GetUsableSkill(kMoltenShellName, kMoltenShellInternalName,
+                var skill = GetUsableSkill(C.MoltenShell.Name, C.MoltenShell.InternalName,
                     Settings.MoltenShellConnectedSkill.Value);
                 if (skill == null)
                 {
@@ -375,17 +340,17 @@ namespace BuffUtil
                     return;
 
                 if (lastPhaseRunCast.HasValue && currentTime - lastPhaseRunCast.Value <
-                    kPhaseRunMinTimeBetweenCasts)
+                    C.PhaseRun.TimeBetweenCasts)
                     return;
 
                 if (HPPercent > Settings.PhaseRunMaxHP.Value)
                     return;
 
-                var hasBuff = HasBuff(kPhaseRunBuffName1);
+                var hasBuff = HasBuff(C.PhaseRun.BuffName);
                 if (!hasBuff.HasValue || hasBuff.Value)
                     return;
 
-                var skill = GetUsableSkill(kPhaseRunName, kPhaseRunInternalName,
+                var skill = GetUsableSkill(C.PhaseRun.Name, C.PhaseRun.InternalName,
                     Settings.PhaseRunConnectedSkill.Value);
                 if (skill == null)
                 {
@@ -430,7 +395,7 @@ namespace BuffUtil
                 if (buffs == null)
                     return false;
 
-                var gracePeriod = HasBuff(kGracePeriodBuffName);
+                var gracePeriod = HasBuff(C.GracePeriod.BuffName);
                 if (!gracePeriod.HasValue || gracePeriod.Value)
                     return false;
 
@@ -517,10 +482,10 @@ namespace BuffUtil
 
             var playerPosition = GameController.Game.IngameState.Data.LocalPlayer.GetComponent<Render>().Pos;
 
-            List<EntityWrapper> localLoadedMonsters;
+            List<Entity> localLoadedMonsters;
             lock (loadedMonstersLock)
             {
-                localLoadedMonsters = new List<EntityWrapper>(loadedMonsters);
+                localLoadedMonsters = new List<Entity>(loadedMonsters);
             }
 
             var maxDistance = Settings.NearbyMonsterMaxDistance.Value;
@@ -531,19 +496,18 @@ namespace BuffUtil
                     monsterCount++;
 
             nearbyMonsterCount = monsterCount;
-
-
             var result = nearbyMonsterCount.Value >= Settings.NearbyMonsterCount;
             if (Settings.Debug.Value && !result)
                 LogMessage("NearbyMonstersCheck failed.", 1);
             return result;
         }
 
-        private bool IsValidNearbyMonster(EntityWrapper monster, Vector3 playerPosition, int maxDistanceSquared)
+        private bool IsValidNearbyMonster(Entity monster, Vector3 playerPosition, int maxDistanceSquared)
         {
             try
             {
-                if (!monster.IsDamageableMonster())
+                if (!monster.IsTargetable || !monster.IsAlive || !monster.IsHostile || monster.IsHidden ||
+                    !monster.IsValid)
                     return false;
 
                 var monsterPosition = monster.Pos;
@@ -562,21 +526,24 @@ namespace BuffUtil
             }
         }
 
-        public override void EntityAdded(EntityWrapper entityWrapper)
+        private bool IsMonster(Entity entity) => entity != null && entity.HasComponent<Monster>();
+
+        public override void EntityAdded(Entity entity)
         {
-            if (!entityWrapper.IsMonster()) return;
+            if (!IsMonster(entity))
+                return;
 
             lock (loadedMonstersLock)
             {
-                loadedMonsters.Add(entityWrapper);
+                loadedMonsters.Add(entity);
             }
         }
 
-        public override void EntityRemoved(EntityWrapper entityWrapper)
+        public override void EntityRemoved(Entity entity)
         {
             lock (loadedMonstersLock)
             {
-                loadedMonsters.Remove(entityWrapper);
+                loadedMonsters.Remove(entity);
             }
         }
     }

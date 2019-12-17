@@ -70,7 +70,12 @@ namespace BuffUtil
 
         public static class GracePeriod
         {
-            public const string BuffName = "";
+            public const string BuffName = "grace_period";
+        }
+
+        public static class BladeVortex
+        {
+            public const string BuffName = "blade_vortex_counter";
         }
     }
 }

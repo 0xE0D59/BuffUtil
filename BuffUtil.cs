@@ -357,6 +357,14 @@ namespace BuffUtil
                 if (!hasBuff.HasValue || hasBuff.Value)
                     return;
 
+                var requiredBVStacks = Settings.PhaseRunMinBVStacks.Value;
+                if (requiredBVStacks > 0)
+                {
+                    var bvBuff = GetBuff(C.BladeVortex.BuffName);
+                    if (bvBuff == null || bvBuff.Charges < requiredBVStacks)
+                        return;
+                }
+
                 var skill = GetUsableSkill(C.PhaseRun.Name, C.PhaseRun.InternalName,
                     Settings.PhaseRunConnectedSkill.Value);
                 if (skill == null)

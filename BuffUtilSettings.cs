@@ -36,6 +36,7 @@ namespace BuffUtil
             PhaseRunConnectedSkill = new RangeNode<int>(1, 1, 13);
             PhaseRunMaxHP = new RangeNode<int>(90, 0, 100);
             PhaseRunMinMoveTime = new RangeNode<int>(0, 0, 5000);
+            PhaseRunMinBVStacks = new RangeNode<int>(0, 0, 10);
 
             WitheringStep = new ToggleNode(false);
             WitheringStepKey = new HotkeyNode(Keys.R);
@@ -138,6 +139,9 @@ namespace BuffUtil
             
         [Menu("Move time", "Time in ms spent moving after which skill can be cast", 54, 5)]
         public RangeNode<int> PhaseRunMinMoveTime { get; set; }
+            
+        [Menu("BV Stacks", "Blade Vortex stacks required to cast Phase Run", 55, 5)]
+        public RangeNode<int> PhaseRunMinBVStacks { get; set; }
 
         #endregion
 

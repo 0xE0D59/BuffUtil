@@ -9,35 +9,36 @@ namespace BuffUtil
     {
         public BuffUtilSettings()
         {
+            Enable = new ToggleNode(true);
             BloodRage = new ToggleNode(false);
             BloodRageKey = new HotkeyNode(Keys.E);
-            BloodRageConnectedSkill = new RangeNode<int>(1, 1, 8);
+            BloodRageConnectedSkill = new RangeNode<int>(1, 1, 13);
             BloodRageMaxHP = new RangeNode<int>(100, 0, 100);
             BloodRageMaxMP = new RangeNode<int>(100, 0, 100);
 
             SteelSkin = new ToggleNode(false);
             SteelSkinKey = new HotkeyNode(Keys.W);
-            SteelSkinConnectedSkill = new RangeNode<int>(1, 1, 8);
+            SteelSkinConnectedSkill = new RangeNode<int>(1, 1, 13);
             SteelSkinMaxHP = new RangeNode<int>(90, 0, 100);
 
             ImmortalCall = new ToggleNode(false);
             ImmortalCallKey = new HotkeyNode(Keys.T);
-            ImmortalCallConnectedSkill = new RangeNode<int>(1, 1, 8);
+            ImmortalCallConnectedSkill = new RangeNode<int>(1, 1, 13);
             ImmortalCallMaxHP = new RangeNode<int>(50, 0, 100);
 
             MoltenShell = new ToggleNode(false);
             MoltenShellKey = new HotkeyNode(Keys.Q);
-            MoltenShellConnectedSkill = new RangeNode<int>(1, 1, 8);
+            MoltenShellConnectedSkill = new RangeNode<int>(1, 1, 13);
             MoltenShellMaxHP = new RangeNode<int>(50, 0, 100);
 
             PhaseRun = new ToggleNode(false);
             PhaseRunKey = new HotkeyNode(Keys.R);
-            PhaseRunConnectedSkill = new RangeNode<int>(1, 1, 8);
+            PhaseRunConnectedSkill = new RangeNode<int>(1, 1, 13);
             PhaseRunMaxHP = new RangeNode<int>(90, 0, 100);
 
             WitheringStep = new ToggleNode(false);
             WitheringStepKey = new HotkeyNode(Keys.R);
-            WitheringStepConnectedSkill = new RangeNode<int>(1, 1, 8);
+            WitheringStepConnectedSkill = new RangeNode<int>(1, 1, 13);
             WitheringStepMaxHP = new RangeNode<int>(90, 0, 100);
 
             BladeFlurry = new ToggleNode(false);

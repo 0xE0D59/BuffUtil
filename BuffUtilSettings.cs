@@ -35,11 +35,13 @@ namespace BuffUtil
             PhaseRunKey = new HotkeyNode(Keys.R);
             PhaseRunConnectedSkill = new RangeNode<int>(1, 1, 13);
             PhaseRunMaxHP = new RangeNode<int>(90, 0, 100);
+            PhaseRunMinMoveTime = new RangeNode<int>(0, 0, 5000);
 
             WitheringStep = new ToggleNode(false);
             WitheringStepKey = new HotkeyNode(Keys.R);
             WitheringStepConnectedSkill = new RangeNode<int>(1, 1, 13);
             WitheringStepMaxHP = new RangeNode<int>(90, 0, 100);
+            WitheringStepMinMoveTime = new RangeNode<int>(0, 0, 5000);
 
             BladeFlurry = new ToggleNode(false);
             BladeFlurryMinCharges = new RangeNode<int>(6, 1, 6);
@@ -133,6 +135,9 @@ namespace BuffUtil
 
         [Menu("Max HP", "HP percent above which skill is not cast", 53, 5)]
         public RangeNode<int> PhaseRunMaxHP { get; set; }
+            
+        [Menu("Move time", "Time in ms spent moving after which skill can be cast", 54, 5)]
+        public RangeNode<int> PhaseRunMinMoveTime { get; set; }
 
         #endregion
 
@@ -147,6 +152,9 @@ namespace BuffUtil
 
         [Menu("Max HP", "HP percent above which skill is not cast", 63, 6)]
         public RangeNode<int> WitheringStepMaxHP { get; set; }
+            
+        [Menu("Move time", "Time in ms spent moving after which skill can be cast", 64, 6)]
+        public RangeNode<int> WitheringStepMinMoveTime { get; set; }
 
         #endregion
 

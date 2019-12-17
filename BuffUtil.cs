@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using WindowsInput;
 using WindowsInput.Native;
@@ -30,6 +31,7 @@ namespace BuffUtil
         private float MPPercent;
         private int? nearbyMonsterCount;
         private bool showErrors = true;
+        private Stopwatch movementStopwatch { get; set; } = new Stopwatch();
 
         public override bool Initialise()
         {
@@ -348,6 +350,9 @@ namespace BuffUtil
                 if (HPPercent > Settings.PhaseRunMaxHP.Value)
                     return;
 
+                if (movementStopwatch.ElapsedMilliseconds < Settings.PhaseRunMinMoveTime)
+                    return;
+
                 var hasBuff = HasBuff(C.PhaseRun.BuffName);
                 if (!hasBuff.HasValue || hasBuff.Value)
                     return;
@@ -388,6 +393,9 @@ namespace BuffUtil
                     return;
 
                 if (HPPercent > Settings.WitheringStepMaxHP.Value)
+                    return;
+
+                if (movementStopwatch.ElapsedMilliseconds < Settings.WitheringStepMinMoveTime)
                     return;
 
                 var hasBuff = HasBuff(C.WitheringStep.BuffName);
@@ -451,6 +459,18 @@ namespace BuffUtil
 
                 HPPercent = 100f * playerLife.HPPercentage;
                 MPPercent = 100f * playerLife.MPPercentage;
+                
+                var playerActor = player.GetComponent<Actor>();
+                if (player != null && player.Address != 0 && playerActor.isMoving)
+                {
+                    if (!movementStopwatch.IsRunning)
+                        movementStopwatch.Start();
+                }
+                else
+                {
+                    movementStopwatch.Reset();
+                }
+                
 
                 return true;
             }

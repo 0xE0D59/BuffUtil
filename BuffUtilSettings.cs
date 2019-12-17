@@ -35,6 +35,11 @@ namespace BuffUtil
             PhaseRunConnectedSkill = new RangeNode<int>(1, 1, 8);
             PhaseRunMaxHP = new RangeNode<int>(90, 0, 100);
 
+            WitheringStep = new ToggleNode(false);
+            WitheringStepKey = new HotkeyNode(Keys.R);
+            WitheringStepConnectedSkill = new RangeNode<int>(1, 1, 8);
+            WitheringStepMaxHP = new RangeNode<int>(90, 0, 100);
+
             BladeFlurry = new ToggleNode(false);
             BladeFlurryMinCharges = new RangeNode<int>(6, 1, 6);
             BladeFlurryUseLeftClick = new ToggleNode(false);
@@ -130,32 +135,46 @@ namespace BuffUtil
 
         #endregion
 
+        #region Withering Step
+
+        [Menu("Withering Step", 6)] public ToggleNode WitheringStep { get; set; }
+
+        [Menu("Withering Step Key", 61, 6)] public HotkeyNode WitheringStepKey { get; set; }
+
+        [Menu("Connected Skill", "Set the skill slot (1 = top left, 8 = bottom right)", 62, 6)]
+        public RangeNode<int> WitheringStepConnectedSkill { get; set; }
+
+        [Menu("Max HP", "HP percent above which skill is not cast", 63, 6)]
+        public RangeNode<int> WitheringStepMaxHP { get; set; }
+
+        #endregion
+
         #region Blade Flurry
 
-        [Menu("Blade Flurry", "Use mouse click to release Blade Flurry charges", 6)] public ToggleNode BladeFlurry { get; set; }
+        [Menu("Blade Flurry", "Use mouse click to release Blade Flurry charges", 7)] public ToggleNode BladeFlurry { get; set; }
 
-        [Menu("Min charges", "Minimal amount of BF charges to release", 61, 6)]
+        [Menu("Min charges", "Minimal amount of BF charges to release", 71, 7)]
         public RangeNode<int> BladeFlurryMinCharges { get; set; }
 
-        [Menu("Use left click", "Use left click instead of right click to release charges", 62, 6)] 
+        [Menu("Use left click", "Use left click instead of right click to release charges", 72, 7)] 
         public ToggleNode BladeFlurryUseLeftClick { get; set; }
         
-        [Menu("Wait for Infused Channeling buff", "Wait for Infused Channeling buff before release", 63, 6)] 
+        [Menu("Wait for Infused Channeling buff", "Wait for Infused Channeling buff before release", 73, 7)] 
         public ToggleNode BladeFlurryWaitForInfused { get; set; }
 
         #endregion
 
         #region Scourge Arrow
 
-        [Menu("Scourge Arrow", "Use mouse click to release Scourge Arrow charges", 7)] public ToggleNode ScourgeArrow { get; set; }
+        [Menu("Scourge Arrow", "Use mouse click to release Scourge Arrow charges", 8)] public ToggleNode ScourgeArrow { get; set; }
 
-        [Menu("Min charges", "Minimal amount of BF charges to release", 71, 7)]
+        [Menu("Min charges", "Minimal amount of BF charges to release", 81, 8)]
         public RangeNode<int> ScourgeArrowMinCharges { get; set; }
 
-        [Menu("Use left click", "Use left click instead of right click to release charges", 72, 7)] 
+        [Menu("Use left click", "Use left click instead of right click to release charges", 82, 8)] 
         public ToggleNode ScourgeArrowUseLeftClick { get; set; }
         
-        [Menu("Wait for Infused Channeling buff", "Wait for Infused Channeling buff before release", 73, 7)] 
+        [Menu("Wait for Infused Channeling buff", "Wait for Infused Channeling buff before release", 83, 8)] 
         public ToggleNode ScourgeArrowWaitForInfused { get; set; }
         #endregion
 

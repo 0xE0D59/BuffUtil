@@ -37,6 +37,14 @@ namespace BuffUtil
             public static readonly TimeSpan TimeBetweenCasts = TimeSpan.FromSeconds(1);
         }
 
+        public static class WitheringStep
+        {
+            public const string BuffName = "slither";
+            public const string Name = "Slither";
+            public const string InternalName = "slither";
+            public static readonly TimeSpan TimeBetweenCasts = TimeSpan.FromSeconds(3);
+        }
+
         public static class BloodRage
         {
             public const string BuffName = "blood_rage";

@@ -22,6 +22,7 @@ namespace BuffUtil
         private Random rand;
         private DateTime? lastBloodRageCast;
         private DateTime? lastPhaseRunCast;
+        private DateTime? lastWitheringStepCast;
         private DateTime? lastSteelSkinCast;
         private DateTime? lastImmortalCallCast;
         private DateTime? lastMoltenShellCast;
@@ -70,6 +71,7 @@ namespace BuffUtil
                 HandleImmortalCall();
                 HandleMoltenShell();
                 HandlePhaseRun();
+                HandleWitheringStep();
             }
             catch (Exception ex)
             {
@@ -366,6 +368,48 @@ namespace BuffUtil
                     LogMessage("Casting Phase Run", 1);
                 inputSimulator.Keyboard.KeyPress((VirtualKeyCode) Settings.PhaseRunKey.Value);
                 lastPhaseRunCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble(0, 0.2));
+            }
+            catch (Exception ex)
+            {
+                if (showErrors)
+                    LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleSteelSkin)}: {ex.StackTrace}", 3f);
+            }
+        }
+
+        private void HandleWitheringStep()
+        {
+            try
+            {
+                if (!Settings.WitheringStep)
+                    return;
+
+                if (lastWitheringStepCast.HasValue && currentTime - lastWitheringStepCast.Value <
+                    C.WitheringStep.TimeBetweenCasts)
+                    return;
+
+                if (HPPercent > Settings.WitheringStepMaxHP.Value)
+                    return;
+
+                var hasBuff = HasBuff(C.WitheringStep.BuffName);
+                if (!hasBuff.HasValue || hasBuff.Value)
+                    return;
+
+                var skill = GetUsableSkill(C.WitheringStep.Name, C.WitheringStep.InternalName,
+                    Settings.WitheringStepConnectedSkill.Value);
+                if (skill == null)
+                {
+                    if (Settings.Debug)
+                        LogMessage("Can not cast Withering Step - not found in usable skills.", 1);
+                    return;
+                }
+
+                if (!NearbyMonsterCheck())
+                    return;
+
+                if (Settings.Debug)
+                    LogMessage("Casting Withering Step", 1);
+                inputSimulator.Keyboard.KeyPress((VirtualKeyCode) Settings.WitheringStepKey.Value);
+                lastWitheringStepCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble(0, 0.2));
             }
             catch (Exception ex)
             {

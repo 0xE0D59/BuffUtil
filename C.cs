@@ -33,7 +33,7 @@ namespace BuffUtil
             public const string BuffName = "new_phase_run";
             public const string BuffName2 = "new_phase_run_damage";
             public const string Name = "NewPhaseRun";
-            public const string InternalName = "NewPhaseRun";
+            public const string InternalName = "new_phase_run";
             public static readonly TimeSpan TimeBetweenCasts = TimeSpan.FromSeconds(1);
         }
 

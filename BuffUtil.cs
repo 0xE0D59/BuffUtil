@@ -78,7 +78,9 @@ namespace BuffUtil
             catch (Exception ex)
             {
                 if (showErrors)
+                {
                     LogError($"Exception in {nameof(BuffUtil)}.{nameof(OnExecute)}: {ex.StackTrace}", 3f);
+                }
             }
         }
 
@@ -540,7 +542,7 @@ namespace BuffUtil
             }
 
             return skills.FirstOrDefault(s =>
-                (s.Name == skillName || s.InternalName == skillInternalName) && s.CanBeUsed && s.AllowedToCast &&
+                (s.Name == skillName || s.InternalName == skillInternalName) &&
                 s.SkillSlotIndex == skillSlotIndex - 1);
         }
 

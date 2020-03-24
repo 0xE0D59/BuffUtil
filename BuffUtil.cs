@@ -542,8 +542,7 @@ namespace BuffUtil
             }
 
             return skills.FirstOrDefault(s =>
-                (s.Name == skillName || s.InternalName == skillInternalName) &&
-                s.SkillSlotIndex == skillSlotIndex - 1);
+                (s.Name == skillName || s.InternalName == skillInternalName));
         }
 
         private bool NearbyMonsterCheck()

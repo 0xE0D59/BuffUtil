@@ -7,7 +7,7 @@ namespace BuffUtil
         public static class SteelSkin
         {
             public const string BuffName = "steelskin";
-            public const string Name = "QuicKGuard";
+            public const string Name = "QuickGuard";
             public const string InternalName = "steelskin";
             public static readonly TimeSpan TimeBetweenCasts = TimeSpan.FromSeconds(1);
         }

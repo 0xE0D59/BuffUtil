@@ -190,6 +190,17 @@ namespace BuffUtil
         [Menu("Wait for Infused Channeling buff", "Wait for Infused Channeling buff before release", 83, 8)] 
         public ToggleNode ScourgeArrowWaitForInfused { get; set; }
         #endregion
+        
+        #region Plague Bearer
+
+        [Menu("Plague Bearer", 9)] public ToggleNode PlagueBearer { get; set; }
+
+        [Menu("Plague Bearer Key", 91, 9)] public HotkeyNode PlagueBearerKey { get; set; }
+
+        [Menu("Connected Skill", "Set the skill slot (1 = top left, 8 = bottom right)", 92, 9)]
+        public RangeNode<int> PlagueBearerConnectedSkill { get; set; }
+
+        #endregion
 
         #region Misc
 

@@ -9,7 +9,7 @@ namespace BuffUtil
     {
         public BuffUtilSettings()
         {
-            Enable = new ToggleNode(true);
+            Enable = new ToggleNode(false);
             BloodRage = new ToggleNode(false);
             BloodRageKey = new HotkeyNode(Keys.E);
             BloodRageConnectedSkill = new RangeNode<int>(1, 1, 13);

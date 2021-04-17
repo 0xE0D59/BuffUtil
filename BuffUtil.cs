@@ -27,6 +27,7 @@ namespace BuffUtil
         private DateTime? lastSteelSkinCast;
         private DateTime? lastImmortalCallCast;
         private DateTime? lastMoltenShellCast;
+        private DateTime? lastPlagueBearerCast;
         private float HPPercent;
         private float MPPercent;
         private int? nearbyMonsterCount;
@@ -74,6 +75,7 @@ namespace BuffUtil
                 HandleMoltenShell();
                 HandlePhaseRun();
                 HandleWitheringStep();
+                HandlePlagueBearer();
             }
             catch (Exception ex)
             {
@@ -123,7 +125,7 @@ namespace BuffUtil
             catch (Exception ex)
             {
                 if (showErrors)
-                    LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleBloodRage)}: {ex.StackTrace}", 3f);
+                    LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleBladeFlurry)}: {ex.StackTrace}", 3f);
             }
         }
 
@@ -433,6 +435,42 @@ namespace BuffUtil
             {
                 if (showErrors)
                     LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleSteelSkin)}: {ex.StackTrace}", 3f);
+            }
+            
+        }
+        private void HandlePlagueBearer()
+        {
+            try
+            {
+                if (!Settings.PlagueBearer)
+                    return;
+
+                var stacksBuff = GetBuff(C.PlagueBearer.BuffName);
+                if (stacksBuff == null)
+                {
+                    if (Settings.Debug)
+                        LogMessage("Incubating max Plague Bearer", 1);
+                    return;
+                }
+
+                if (!NearbyMonsterCheck())
+                    return;
+
+                var hasBuff = HasBuff(C.PlagueBearer.BuffName);
+                if (!hasBuff.HasValue || hasBuff.Value)
+                {
+                    if (Settings.Debug)
+                        LogMessage("Accumilated max Plague Bearer", 1);
+                    inputSimulator.Keyboard.KeyPress((VirtualKeyCode)Settings.PlagueBearerKey.Value);
+                    lastPlagueBearerCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble(0, 0.2));
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                if (showErrors)
+                    LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandlePlagueBearer)}: {ex.StackTrace}", 3f);
             }
         }
 

@@ -448,12 +448,16 @@ namespace BuffUtil
                 if (Settings.DisableInHideout && GameController.Area.CurrentArea.IsHideout)
                     return false;
                 var player = GameController.Game.IngameState.Data.LocalPlayer;
+                if (player == null)
+                    return false;
                 var playerLife = player.GetComponent<Life>();
+                if (playerLife == null)
+                    return false;
                 var isDead = playerLife.CurHP <= 0;
                 if (isDead)
                     return false;
 
-                buffs = GameController.Game.IngameState.Data.LocalPlayer.GetComponent<Life>().Buffs;
+                buffs = player.GetComponent<Buffs>()?.BuffsList;
                 if (buffs == null)
                     return false;
 
@@ -461,7 +465,7 @@ namespace BuffUtil
                 if (!gracePeriod.HasValue || gracePeriod.Value)
                     return false;
 
-                skills = GameController.Game.IngameState.Data.LocalPlayer.GetComponent<Actor>().ActorSkills;
+                skills = player.GetComponent<Actor>().ActorSkills;
                 if (skills == null || skills.Count == 0)
                     return false;
 
@@ -542,8 +546,7 @@ namespace BuffUtil
             }
 
             return skills.FirstOrDefault(s =>
-                (s.Name == skillName || s.InternalName == skillInternalName) &&
-                s.SkillSlotIndex == skillSlotIndex - 1);
+                (s.Name == skillName || s.InternalName == skillInternalName));
         }
 
         private bool NearbyMonsterCheck()

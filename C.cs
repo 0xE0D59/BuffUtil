@@ -53,6 +53,60 @@ namespace BuffUtil
             public static readonly TimeSpan TimeBetweenCasts = TimeSpan.FromSeconds(1);
         }
 
+        public static class WarcryBattlemagesCry
+        {
+            public const string BuffName = "divine_cry";
+            public const string Name = "BattlemagesCry";
+            public const string InternalName = "battlemages_cry";
+            public static readonly TimeSpan TimeBetweenCasts = TimeSpan.FromSeconds(8);
+        }
+
+        public static class WarcryEnduringCry
+        {
+            public const string BuffName = "enduring_cry_endurance_charge_benefits";
+            public const string Name = "EnduringCry";
+            public const string InternalName = "enduring_cry";
+            public static readonly TimeSpan TimeBetweenCasts = TimeSpan.FromSeconds(8);
+        }
+
+        public static class WarcryIntimidatingCry
+        {
+            public const string BuffName = "intimidating_cry";
+            public const string Name = "IntimidatingCry";
+            public const string InternalName = "intimidating_cry";
+            public static readonly TimeSpan TimeBetweenCasts = TimeSpan.FromSeconds(8);
+        }
+
+        public static class WarcryAncestralCry
+        {
+            public const string BuffName = "ancestral_cry";
+            public const string Name = "AncestralCry";
+            public const string InternalName = "ancestral_cry";
+            public static readonly TimeSpan TimeBetweenCasts = TimeSpan.FromSeconds(8);
+        }
+
+        public static class WarcryInfernalCry
+        {
+            public const string BuffName = "";
+            public const string Name = "AbyssalCry";
+            public const string InternalName = "infernal_cry";
+            public static readonly TimeSpan TimeBetweenCasts = TimeSpan.FromSeconds(8);
+        }
+
+        public static class WarcryRallyingCry
+        {
+            public const string BuffName = "";
+            public const string Name = "RallyingCry";
+            public const string InternalName = "rallying_cry";
+        }
+
+        public static class Berserk
+        {
+            public const string BuffName = "berserk";
+            public const string Name = "Berserk";
+            public const string InternalName = "berserk";
+        }
+
         public static class BladeFlurry
         {
             public const string BuffName = "charged_attack";
@@ -76,6 +130,11 @@ namespace BuffUtil
         public static class BladeVortex
         {
             public const string BuffName = "blade_vortex_counter";
+        }
+
+        public static class Rage
+        {
+            public const string BuffName = "rage";
         }
     }
 }

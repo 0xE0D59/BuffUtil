@@ -7,6 +7,7 @@ using WindowsInput.Native;
 using ExileCore;
 using ExileCore.PoEMemory.Components;
 using ExileCore.PoEMemory.MemoryObjects;
+using ExileCore.Shared.Enums;
 using SharpDX;
 
 namespace BuffUtil
@@ -27,9 +28,13 @@ namespace BuffUtil
         private DateTime? lastSteelSkinCast;
         private DateTime? lastImmortalCallCast;
         private DateTime? lastMoltenShellCast;
+        private DateTime? lastWarcryCast;
+        private DateTime? lastBerserkCast;
         private float HPPercent;
         private float MPPercent;
         private int? nearbyMonsterCount;
+        private int? rageBuffCount;
+        private bool? uniqueBossNearby;
         private bool showErrors = true;
         private Stopwatch movementStopwatch { get; set; } = new Stopwatch();
 
@@ -74,6 +79,8 @@ namespace BuffUtil
                 HandleMoltenShell();
                 HandlePhaseRun();
                 HandleWitheringStep();
+                HandleWarcry();
+                HandleBerserk();
             }
             catch (Exception ex)
             {
@@ -95,7 +102,7 @@ namespace BuffUtil
                 if (stacksBuff == null)
                     return;
 
-                var charges = stacksBuff.Charges;
+                var charges = stacksBuff.BuffCharges;
                 if (charges < Settings.BladeFlurryMinCharges.Value)
                     return;
 
@@ -107,7 +114,7 @@ namespace BuffUtil
                 }
 
                 if (Settings.Debug)
-                    LogMessage($"Releasing Blade Flurry at {charges} charges.", 1);
+                    LogMessage($"Releasing Blade Flurry at {charges} charges.");
 
                 if (Settings.BladeFlurryUseLeftClick)
                 {
@@ -138,7 +145,7 @@ namespace BuffUtil
                 if (stacksBuff == null)
                     return;
 
-                var charges = stacksBuff.Charges;
+                var charges = stacksBuff.BuffCharges;
                 if (charges < Settings.ScourgeArrowMinCharges.Value)
                     return;
 
@@ -150,7 +157,7 @@ namespace BuffUtil
                 }
 
                 if (Settings.Debug)
-                    LogMessage($"Releasing Scourge Arrow at {charges} charges.", 1);
+                    LogMessage($"Releasing Scourge Arrow at {charges} charges.");
 
                 if (Settings.ScourgeArrowUseLeftClick)
                 {
@@ -188,12 +195,11 @@ namespace BuffUtil
                 if (!hasBuff.HasValue || hasBuff.Value)
                     return;
 
-                var skill = GetUsableSkill(C.BloodRage.Name, C.BloodRage.InternalName,
-                    Settings.BloodRageConnectedSkill.Value);
+                var skill = GetUsableSkill(C.BloodRage.Name, C.BloodRage.InternalName);
                 if (skill == null)
                 {
                     if (Settings.Debug)
-                        LogMessage("Can not cast Blood Rage - not found in usable skills.", 1);
+                        LogMessage("Can not cast Blood Rage - not found in usable skills.");
                     return;
                 }
 
@@ -201,8 +207,8 @@ namespace BuffUtil
                     return;
 
                 if (Settings.Debug)
-                    LogMessage("Casting Blood Rage", 1);
-                inputSimulator.Keyboard.KeyPress((VirtualKeyCode) Settings.BloodRageKey.Value);
+                    LogMessage("Casting Blood Rage");
+                inputSimulator.Keyboard.KeyPress((VirtualKeyCode)Settings.BloodRageKey.Value);
                 lastBloodRageCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble(0, 0.2));
             }
             catch (Exception ex)
@@ -230,12 +236,12 @@ namespace BuffUtil
                 if (!hasBuff.HasValue || hasBuff.Value)
                     return;
 
-                var skill = GetUsableSkill(C.SteelSkin.Name, C.SteelSkin.InternalName,
-                    Settings.SteelSkinConnectedSkill.Value);
+                var skill = GetUsableSkill(C.SteelSkin.Name, C.SteelSkin.InternalName
+                );
                 if (skill == null)
                 {
                     if (Settings.Debug)
-                        LogMessage("Can not cast Steel Skin - not found in usable skills.", 1);
+                        LogMessage("Can not cast Steel Skin - not found in usable skills.");
                     return;
                 }
 
@@ -243,8 +249,8 @@ namespace BuffUtil
                     return;
 
                 if (Settings.Debug)
-                    LogMessage("Casting Steel Skin", 1);
-                inputSimulator.Keyboard.KeyPress((VirtualKeyCode) Settings.SteelSkinKey.Value);
+                    LogMessage("Casting Steel Skin");
+                inputSimulator.Keyboard.KeyPress((VirtualKeyCode)Settings.SteelSkinKey.Value);
                 lastSteelSkinCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble(0, 0.2));
             }
             catch (Exception ex)
@@ -272,12 +278,11 @@ namespace BuffUtil
                 if (!hasBuff.HasValue || hasBuff.Value)
                     return;
 
-                var skill = GetUsableSkill(C.ImmortalCall.Name, C.ImmortalCall.InternalName,
-                    Settings.ImmortalCallConnectedSkill.Value);
+                var skill = GetUsableSkill(C.ImmortalCall.Name, C.ImmortalCall.InternalName);
                 if (skill == null)
                 {
                     if (Settings.Debug)
-                        LogMessage("Can not cast Immortal Call - not found in usable skills.", 1);
+                        LogMessage("Can not cast Immortal Call - not found in usable skills.");
                     return;
                 }
 
@@ -285,8 +290,8 @@ namespace BuffUtil
                     return;
 
                 if (Settings.Debug)
-                    LogMessage("Casting Immortal Call", 1);
-                inputSimulator.Keyboard.KeyPress((VirtualKeyCode) Settings.ImmortalCallKey.Value);
+                    LogMessage("Casting Immortal Call");
+                inputSimulator.Keyboard.KeyPress((VirtualKeyCode)Settings.ImmortalCallKey.Value);
                 lastImmortalCallCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble(0, 0.2));
             }
             catch (Exception ex)
@@ -314,12 +319,11 @@ namespace BuffUtil
                 if (!hasBuff.HasValue || hasBuff.Value)
                     return;
 
-                var skill = GetUsableSkill(C.MoltenShell.Name, C.MoltenShell.InternalName,
-                    Settings.MoltenShellConnectedSkill.Value);
+                var skill = GetUsableSkill(C.MoltenShell.Name, C.MoltenShell.InternalName);
                 if (skill == null)
                 {
                     if (Settings.Debug)
-                        LogMessage("Can not cast Molten Shell - not found in usable skills.", 1);
+                        LogMessage("Can not cast Molten Shell - not found in usable skills.");
                     return;
                 }
 
@@ -327,8 +331,8 @@ namespace BuffUtil
                     return;
 
                 if (Settings.Debug)
-                    LogMessage("Casting Molten Shell", 1);
-                inputSimulator.Keyboard.KeyPress((VirtualKeyCode) Settings.MoltenShellKey.Value);
+                    LogMessage("Casting Molten Shell");
+                inputSimulator.Keyboard.KeyPress((VirtualKeyCode)Settings.MoltenShellKey.Value);
                 lastMoltenShellCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble(0, 0.2));
             }
             catch (Exception ex)
@@ -363,16 +367,15 @@ namespace BuffUtil
                 if (requiredBVStacks > 0)
                 {
                     var bvBuff = GetBuff(C.BladeVortex.BuffName);
-                    if (bvBuff == null || bvBuff.Charges < requiredBVStacks)
+                    if (bvBuff == null || bvBuff.BuffCharges < requiredBVStacks)
                         return;
                 }
 
-                var skill = GetUsableSkill(C.PhaseRun.Name, C.PhaseRun.InternalName,
-                    Settings.PhaseRunConnectedSkill.Value);
+                var skill = GetUsableSkill(C.PhaseRun.Name, C.PhaseRun.InternalName);
                 if (skill == null)
                 {
                     if (Settings.Debug)
-                        LogMessage("Can not cast Phase Run - not found in usable skills.", 1);
+                        LogMessage("Can not cast Phase Run - not found in usable skills.");
                     return;
                 }
 
@@ -380,14 +383,14 @@ namespace BuffUtil
                     return;
 
                 if (Settings.Debug)
-                    LogMessage("Casting Phase Run", 1);
-                inputSimulator.Keyboard.KeyPress((VirtualKeyCode) Settings.PhaseRunKey.Value);
+                    LogMessage("Casting Phase Run");
+                inputSimulator.Keyboard.KeyPress((VirtualKeyCode)Settings.PhaseRunKey.Value);
                 lastPhaseRunCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble(0, 0.2));
             }
             catch (Exception ex)
             {
                 if (showErrors)
-                    LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleSteelSkin)}: {ex.StackTrace}", 3f);
+                    LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandlePhaseRun)}: {ex.StackTrace}", 3f);
             }
         }
 
@@ -412,12 +415,11 @@ namespace BuffUtil
                 if (!hasBuff.HasValue || hasBuff.Value)
                     return;
 
-                var skill = GetUsableSkill(C.WitheringStep.Name, C.WitheringStep.InternalName,
-                    Settings.WitheringStepConnectedSkill.Value);
+                var skill = GetUsableSkill(C.WitheringStep.Name, C.WitheringStep.InternalName);
                 if (skill == null)
                 {
                     if (Settings.Debug)
-                        LogMessage("Can not cast Withering Step - not found in usable skills.", 1);
+                        LogMessage("Can not cast Withering Step - not found in usable skills.");
                     return;
                 }
 
@@ -425,16 +427,102 @@ namespace BuffUtil
                     return;
 
                 if (Settings.Debug)
-                    LogMessage("Casting Withering Step", 1);
-                inputSimulator.Keyboard.KeyPress((VirtualKeyCode) Settings.WitheringStepKey.Value);
+                    LogMessage("Casting Withering Step");
+                inputSimulator.Keyboard.KeyPress((VirtualKeyCode)Settings.WitheringStepKey.Value);
                 lastWitheringStepCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble(0, 0.2));
             }
             catch (Exception ex)
             {
                 if (showErrors)
-                    LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleSteelSkin)}: {ex.StackTrace}", 3f);
+                    LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleWitheringStep)}: {ex.StackTrace}", 3f);
             }
         }
+
+        private void HandleWarcry()
+        {
+            try
+            {
+                if (!Settings.Warcry)
+                    return;
+
+                if (lastWarcryCast.HasValue && currentTime - lastWarcryCast.Value <
+                    TimeSpan.FromMilliseconds(500))
+                    return;
+
+                var minRage = Settings.WarCryMinRage.Value;
+                var maxRage = Settings.WarCryMaxRage.Value;
+                var rage = GetRageBuffCharges();
+                if (rage < minRage || rage > maxRage)
+                    return;
+
+                var requiredEnemies = Settings.WarcryNearbyEnemiesCount;
+                var useOnBosses = Settings.WarcryUseOnUniqueBoss.Value;
+                if (!(requiredEnemies > 0 && requiredEnemies <= GetNearbyMonsterCount() ||
+                      useOnBosses && IsUniqueBossInRange()))
+                    return;
+
+                var skill = GetWarcryActorSkill();
+                if (skill == null || !skill.CanBeUsed)
+                {
+                    if (Settings.Debug)
+                        LogMessage("Can not cast Warcry skill - not found in usable skills.");
+                    return;
+                }
+
+                if (Settings.Debug)
+                    LogMessage("Casting Warcry");
+                inputSimulator.Keyboard.KeyPress((VirtualKeyCode)Settings.WarcryKey.Value);
+                lastWarcryCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble(0, 0.1));
+            }
+            catch (Exception ex)
+            {
+                if (showErrors)
+                    LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleWarcry)}: {ex.StackTrace}", 3f);
+            }
+        }
+
+        private void HandleBerserk()
+        {
+            try
+            {
+                if (!Settings.Berserk)
+                    return;
+
+                if (lastBerserkCast.HasValue && currentTime - lastBerserkCast.Value <
+                    TimeSpan.FromMilliseconds(500))
+                    return;
+
+                var minRage = Settings.BerserkMinRage.Value;
+                var rage = GetRageBuffCharges();
+                if (rage < minRage)
+                    return;
+
+                var requiredEnemies = Settings.BerserkNearbyEnemiesCount.Value;
+                var useOnBosses = Settings.BerserkUseOnUniqueBoss.Value;
+                if (!(requiredEnemies > 0 && requiredEnemies <= GetNearbyMonsterCount() ||
+                      useOnBosses && IsUniqueBossInRange()))
+                    return;
+
+                var skill = GetUsableSkill(C.Berserk.Name, C.Berserk.InternalName);
+                if (skill == null || !skill.CanBeUsed)
+                {
+                    if (Settings.Debug)
+                        LogMessage("Can not cast Berserk skill - not found in usable skills.");
+                    return;
+                }
+
+                if (Settings.Debug)
+                    LogMessage("Casting Berserk");
+                inputSimulator.Keyboard.KeyPress((VirtualKeyCode)Settings.BerserkKey.Value);
+                lastBerserkCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble(0, 0.1));
+            }
+            catch (Exception ex)
+            {
+                if (showErrors)
+                    LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleWarcry)}: {ex.StackTrace}", 3f);
+            }
+        }
+
 
         private bool OnPreExecute()
         {
@@ -473,9 +561,9 @@ namespace BuffUtil
 
                 HPPercent = 100f * playerLife.HPPercentage;
                 MPPercent = 100f * playerLife.MPPercentage;
-                
+
                 var playerActor = player.GetComponent<Actor>();
-                if (player != null && player.Address != 0 && playerActor.isMoving)
+                if (player.Address != 0 && playerActor.isMoving)
                 {
                     if (!movementStopwatch.IsRunning)
                         movementStopwatch.Start();
@@ -484,7 +572,7 @@ namespace BuffUtil
                 {
                     movementStopwatch.Reset();
                 }
-                
+
 
                 return true;
             }
@@ -504,6 +592,8 @@ namespace BuffUtil
                 skills = null;
                 currentTime = null;
                 nearbyMonsterCount = null;
+                rageBuffCount = null;
+                uniqueBossNearby = null;
             }
             catch (Exception ex)
             {
@@ -517,7 +607,7 @@ namespace BuffUtil
             if (buffs == null)
             {
                 if (showErrors)
-                    LogError("Requested buff check, but buff list is empty.", 1);
+                    LogError("Requested buff check, but buff list is empty.");
                 return null;
             }
 
@@ -529,33 +619,55 @@ namespace BuffUtil
             if (buffs == null)
             {
                 if (showErrors)
-                    LogError("Requested buff retrieval, but buff list is empty.", 1);
+                    LogError("Requested buff retrieval, but buff list is empty.");
                 return null;
             }
 
             return buffs.FirstOrDefault(b => string.Compare(b.Name, buffName, StringComparison.OrdinalIgnoreCase) == 0);
         }
 
-        private ActorSkill GetUsableSkill(string skillName, string skillInternalName, int skillSlotIndex)
+        private ActorSkill GetUsableSkill(string skillName, string skillInternalName)
         {
             if (skills == null)
             {
                 if (showErrors)
-                    LogError("Requested usable skill, but skill list is empty.", 1);
+                    LogError("Requested usable skill, but skill list is empty.");
                 return null;
             }
 
             return skills.FirstOrDefault(s =>
-                (s.Name == skillName || s.InternalName == skillInternalName));
+                (string.Compare(s.Name, skillName, StringComparison.OrdinalIgnoreCase) == 0 ||
+                 string.Compare(s.InternalName, skillInternalName, StringComparison.OrdinalIgnoreCase) == 0));
+        }
+
+        private ActorSkill GetUsableSkill(IEnumerable<string> skillNames)
+        {
+            if (skills == null)
+            {
+                if (showErrors)
+                    LogError("Requested usable skill, but skill list is empty.");
+                return null;
+            }
+
+            return skills.FirstOrDefault(s =>
+                (skillNames.Any(sn =>
+                    string.Compare(s.Name, sn, StringComparison.OrdinalIgnoreCase) == 0)));
         }
 
         private bool NearbyMonsterCheck()
         {
             if (!Settings.RequireMinMonsterCount.Value)
                 return true;
+            var result = GetNearbyMonsterCount() >= Settings.NearbyMonsterCount;
+            if (Settings.Debug.Value && !result)
+                LogMessage("NearbyMonstersCheck failed.");
+            return result;
+        }
 
+        private int GetNearbyMonsterCount()
+        {
             if (nearbyMonsterCount.HasValue)
-                return nearbyMonsterCount.Value >= Settings.NearbyMonsterCount;
+                return nearbyMonsterCount.Value;
 
             var playerPosition = GameController.Game.IngameState.Data.LocalPlayer.GetComponent<Render>().Pos;
 
@@ -573,10 +685,38 @@ namespace BuffUtil
                     monsterCount++;
 
             nearbyMonsterCount = monsterCount;
-            var result = nearbyMonsterCount.Value >= Settings.NearbyMonsterCount;
-            if (Settings.Debug.Value && !result)
-                LogMessage("NearbyMonstersCheck failed.", 1);
-            return result;
+            return monsterCount;
+        }
+
+        private bool IsUniqueBossInRange()
+        {
+            if (uniqueBossNearby.HasValue)
+                return uniqueBossNearby.Value;
+
+            var playerPosition = GameController.Game.IngameState.Data.LocalPlayer.GetComponent<Render>().Pos;
+
+            List<Entity> localLoadedMonsters;
+            lock (loadedMonstersLock)
+            {
+                localLoadedMonsters = new List<Entity>(loadedMonsters);
+            }
+
+            var maxDistance = 750;
+            var maxDistanceSquared = maxDistance * maxDistance;
+            foreach (var monster in localLoadedMonsters)
+                if (monster.Rarity == MonsterRarity.Unique &&
+                    IsValidNearbyMonster(monster, playerPosition, maxDistanceSquared))
+                {
+                    var life = monster.GetComponent<Life>();
+                    if (life.CurHP < life.MaxHP || life.CurES < life.MaxES)
+                    {
+                        uniqueBossNearby = true;
+                        return true;
+                    }
+                }
+
+            uniqueBossNearby = false;
+            return false;
         }
 
         private bool IsValidNearbyMonster(Entity monster, Vector3 playerPosition, int maxDistanceSquared)
@@ -604,6 +744,33 @@ namespace BuffUtil
         }
 
         private bool IsMonster(Entity entity) => entity != null && entity.HasComponent<Monster>();
+
+        private int GetRageBuffCharges()
+        {
+            if (rageBuffCount.HasValue)
+                return rageBuffCount.Value;
+            if (buffs == null || buffs.Count == 0)
+            {
+                rageBuffCount = 0;
+                return rageBuffCount.Value;
+            }
+
+            var rageBuff = GetBuff(C.Rage.BuffName);
+            rageBuffCount = rageBuff?.BuffCharges ?? 0;
+            return rageBuffCount.Value;
+        }
+
+
+        private ActorSkill GetWarcryActorSkill()
+        {
+            string[] warcryNames =
+            {
+                C.WarcryAncestralCry.Name, C.WarcryBattlemagesCry.Name, C.WarcryEnduringCry.Name,
+                C.WarcryInfernalCry.Name, C.WarcryIntimidatingCry.Name, C.WarcryRallyingCry.Name
+            };
+
+            return GetUsableSkill(warcryNames);
+        }
 
         public override void EntityAdded(Entity entity)
         {

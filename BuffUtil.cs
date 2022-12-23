@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 using WindowsInput;
 using WindowsInput.Native;
 using ExileCore;
 using ExileCore.PoEMemory.Components;
 using ExileCore.PoEMemory.MemoryObjects;
 using ExileCore.Shared.Enums;
-using SharpDX;
 
 namespace BuffUtil
 {
@@ -209,7 +209,7 @@ namespace BuffUtil
                 if (Settings.Debug)
                     LogMessage("Casting Blood Rage");
                 inputSimulator.Keyboard.KeyPress((VirtualKeyCode)Settings.BloodRageKey.Value);
-                lastBloodRageCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble(0, 0.2));
+                lastBloodRageCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble() * 0.2);
             }
             catch (Exception ex)
             {
@@ -251,7 +251,7 @@ namespace BuffUtil
                 if (Settings.Debug)
                     LogMessage("Casting Steel Skin");
                 inputSimulator.Keyboard.KeyPress((VirtualKeyCode)Settings.SteelSkinKey.Value);
-                lastSteelSkinCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble(0, 0.2));
+                lastSteelSkinCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble() * 0.2);
             }
             catch (Exception ex)
             {
@@ -292,7 +292,7 @@ namespace BuffUtil
                 if (Settings.Debug)
                     LogMessage("Casting Immortal Call");
                 inputSimulator.Keyboard.KeyPress((VirtualKeyCode)Settings.ImmortalCallKey.Value);
-                lastImmortalCallCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble(0, 0.2));
+                lastImmortalCallCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble() * 0.2);
             }
             catch (Exception ex)
             {
@@ -333,7 +333,7 @@ namespace BuffUtil
                 if (Settings.Debug)
                     LogMessage("Casting Molten Shell");
                 inputSimulator.Keyboard.KeyPress((VirtualKeyCode)Settings.MoltenShellKey.Value);
-                lastMoltenShellCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble(0, 0.2));
+                lastMoltenShellCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble() * 0.2);
             }
             catch (Exception ex)
             {
@@ -385,7 +385,7 @@ namespace BuffUtil
                 if (Settings.Debug)
                     LogMessage("Casting Phase Run");
                 inputSimulator.Keyboard.KeyPress((VirtualKeyCode)Settings.PhaseRunKey.Value);
-                lastPhaseRunCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble(0, 0.2));
+                lastPhaseRunCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble() * 0.2);
             }
             catch (Exception ex)
             {
@@ -429,7 +429,7 @@ namespace BuffUtil
                 if (Settings.Debug)
                     LogMessage("Casting Withering Step");
                 inputSimulator.Keyboard.KeyPress((VirtualKeyCode)Settings.WitheringStepKey.Value);
-                lastWitheringStepCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble(0, 0.2));
+                lastWitheringStepCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble() * 0.2);
             }
             catch (Exception ex)
             {
@@ -455,9 +455,10 @@ namespace BuffUtil
                 if (rage < minRage || rage > maxRage)
                     return;
 
+                var useAlways = Settings.WarcryUseAlways.Value;
                 var requiredEnemies = Settings.WarcryNearbyEnemiesCount;
                 var useOnBosses = Settings.WarcryUseOnUniqueBoss.Value;
-                if (!(requiredEnemies > 0 && requiredEnemies <= GetNearbyMonsterCount() ||
+                if (!(useAlways || requiredEnemies > 0 && requiredEnemies <= GetNearbyMonsterCount() ||
                       useOnBosses && IsUniqueBossInRange()))
                     return;
 
@@ -472,7 +473,7 @@ namespace BuffUtil
                 if (Settings.Debug)
                     LogMessage("Casting Warcry");
                 inputSimulator.Keyboard.KeyPress((VirtualKeyCode)Settings.WarcryKey.Value);
-                lastWarcryCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble(0, 0.1));
+                lastWarcryCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble() * 0.1);
             }
             catch (Exception ex)
             {
@@ -514,7 +515,7 @@ namespace BuffUtil
                 if (Settings.Debug)
                     LogMessage("Casting Berserk");
                 inputSimulator.Keyboard.KeyPress((VirtualKeyCode)Settings.BerserkKey.Value);
-                lastBerserkCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble(0, 0.1));
+                lastBerserkCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble() * 0.1);
             }
             catch (Exception ex)
             {
@@ -669,7 +670,7 @@ namespace BuffUtil
             if (nearbyMonsterCount.HasValue)
                 return nearbyMonsterCount.Value;
 
-            var playerPosition = GameController.Game.IngameState.Data.LocalPlayer.GetComponent<Render>().Pos;
+            var playerPosition = GameController.Game.IngameState.Data.LocalPlayer.GetComponent<Render>().PosNum;
 
             List<Entity> localLoadedMonsters;
             lock (loadedMonstersLock)
@@ -693,7 +694,7 @@ namespace BuffUtil
             if (uniqueBossNearby.HasValue)
                 return uniqueBossNearby.Value;
 
-            var playerPosition = GameController.Game.IngameState.Data.LocalPlayer.GetComponent<Render>().Pos;
+            var playerPosition = GameController.Game.IngameState.Data.LocalPlayer.GetComponent<Render>().PosNum;
 
             List<Entity> localLoadedMonsters;
             lock (loadedMonstersLock)
@@ -727,7 +728,7 @@ namespace BuffUtil
                     !monster.IsValid)
                     return false;
 
-                var monsterPosition = monster.Pos;
+                var monsterPosition = monster.PosNum;
 
                 var xDiff = playerPosition.X - monsterPosition.X;
                 var yDiff = playerPosition.Y - monsterPosition.Y;

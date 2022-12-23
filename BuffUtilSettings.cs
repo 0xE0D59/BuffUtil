@@ -50,6 +50,7 @@ namespace BuffUtil
             WarCryMaxRage = new RangeNode<int>(24, 0, 100);
             WarcryNearbyEnemiesCount = new RangeNode<int>(1, 0, 50);
             WarcryUseOnUniqueBoss = new ToggleNode(true);
+            WarcryUseAlways = new ToggleNode(false);
 
             BladeFlurry = new ToggleNode(false);
             BladeFlurryMinCharges = new RangeNode<int>(6, 1, 6);
@@ -187,6 +188,9 @@ namespace BuffUtil
 
         [Menu("Unique bosses", "Use Berserk on Unique Bosses", 85, 8)]
         public ToggleNode WarcryUseOnUniqueBoss { get; set; }
+
+        [Menu("Use always when ready", "Use always when ready (and matches Rage conditions)", 86, 8)]
+        public ToggleNode WarcryUseAlways { get; set; }
 
         #endregion
 

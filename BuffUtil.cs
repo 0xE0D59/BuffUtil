@@ -188,11 +188,14 @@ namespace BuffUtil
                     C.BloodRage.TimeBetweenCasts)
                     return;
 
-                if (HPPercent > Settings.BloodRageMaxHP.Value || MPPercent > Settings.BloodRageMaxMP)
+                if (HPPercent < Settings.BloodRageMaxHP.Value || MPPercent < Settings.BloodRageMaxMP)
                     return;
 
                 var hasBuff = HasBuff(C.BloodRage.BuffName);
-                if (!hasBuff.HasValue || hasBuff.Value)
+                // If there is no value or there is a value do nothing?
+                // This doesn't make much sense
+                // Change guard statement to only check for the buff
+                if (hasBuff.Value)
                     return;
 
                 var skill = GetUsableSkill(C.BloodRage.Name, C.BloodRage.InternalName);

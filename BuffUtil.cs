@@ -26,6 +26,7 @@ namespace BuffUtil
         private DateTime? lastPhaseRunCast;
         private DateTime? lastWitheringStepCast;
         private DateTime? lastSteelSkinCast;
+        private DateTime? lastArcaneCloakCast;
         private DateTime? lastImmortalCallCast;
         private DateTime? lastMoltenShellCast;
         private DateTime? lastWarcryCast;
@@ -75,6 +76,7 @@ namespace BuffUtil
                 HandleScourgeArrow();
                 HandleBloodRage();
                 HandleSteelSkin();
+                HandleArcaneCloak();
                 HandleImmortalCall();
                 HandleMoltenShell();
                 HandlePhaseRun();
@@ -257,6 +259,48 @@ namespace BuffUtil
             {
                 if (showErrors)
                     LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleSteelSkin)}: {ex.StackTrace}", 3f);
+            }
+        }
+
+        private void HandleArcaneCloak()
+        {
+            try
+            {
+                if (!Settings.ArcaneCloak)
+                    return;
+
+                if (lastArcaneCloakCast.HasValue && currentTime - lastArcaneCloakCast.Value <
+                    C.ArcaneCloak.TimeBetweenCasts)
+                    return;
+
+                if (HPPercent > Settings.ArcaneCloakMaxHP.Value)
+                    return;
+
+                var hasBuff = HasBuff(C.ArcaneCloak.BuffName);
+                if (!hasBuff.HasValue || hasBuff.Value)
+                    return;
+
+                var skill = GetUsableSkill(C.ArcaneCloak.Name, C.ArcaneCloak.InternalName
+                );
+                if (skill == null)
+                {
+                    if (Settings.Debug)
+                        LogMessage("Can not cast Arcane Cloak - not found in usable skills.");
+                    return;
+                }
+
+                if (!NearbyMonsterCheck())
+                    return;
+
+                if (Settings.Debug)
+                    LogMessage("Casting Arcane Cloak");
+                inputSimulator.Keyboard.KeyPress((VirtualKeyCode)Settings.ArcaneCloakKey.Value);
+                lastArcaneCloakCast = currentTime + TimeSpan.FromSeconds(rand.NextDouble() * 0.2);
+            }
+            catch (Exception ex)
+            {
+                if (showErrors)
+                    LogError($"Exception in {nameof(BuffUtil)}.{nameof(HandleArcaneCloak)}: {ex.StackTrace}", 3f);
             }
         }
 

@@ -15,6 +15,10 @@ namespace BuffUtil
             BloodRageMaxHP = new RangeNode<int>(100, 0, 100);
             BloodRageMaxMP = new RangeNode<int>(100, 0, 100);
 
+            ArcaneCloak = new ToggleNode(false);
+            ArcaneCloakKey = new HotkeyNode(Keys.R);
+            ArcaneCloakMaxHP = new RangeNode<int>(90, 0, 100);
+            
             SteelSkin = new ToggleNode(false);
             SteelSkinKey = new HotkeyNode(Keys.W);
             SteelSkinMaxHP = new RangeNode<int>(90, 0, 100);
@@ -169,83 +173,94 @@ namespace BuffUtil
         public ToggleNode BerserkUseOnUniqueBoss { get; set; }
 
         #endregion
+        
+        #region Arcane Cloak
+
+        [Menu("Arcane Cloak", 8)] public ToggleNode ArcaneCloak { get; set; }
+
+        [Menu("Arcane Cloak Key", 81, 8)] public HotkeyNode ArcaneCloakKey { get; set; }
+
+        [Menu("Max HP", "HP percent above which skill is not cast", 82, 8)]
+        public RangeNode<int> ArcaneCloakMaxHP { get; set; }
+
+        #endregion
 
         #region Warcry
 
-        [Menu("Warcry", 8)] public ToggleNode Warcry { get; set; }
+        [Menu("Warcry", 9)] public ToggleNode Warcry { get; set; }
 
-        [Menu("Warcry Key", 81, 8)] public HotkeyNode WarcryKey { get; set; }
+        [Menu("Warcry Key", 91, 9)] public HotkeyNode WarcryKey { get; set; }
 
 
-        [Menu("MinRage", "Use if at least X amount of Rage charges", 82, 8)]
+        [Menu("MinRage", "Use if at least X amount of Rage charges", 92, 9)]
         public RangeNode<int> WarCryMinRage { get; set; }
 
-        [Menu("Max Rage", "Use if at most X amount of Rage charges", 83, 8)]
+        [Menu("Max Rage", "Use if at most X amount of Rage charges", 93, 9)]
         public RangeNode<int> WarCryMaxRage { get; set; }
 
-        [Menu("Nearby monsters", "Nearby enemy monsters count to use", 84, 8)]
+        [Menu("Nearby monsters", "Nearby enemy monsters count to use", 94, 9)]
         public RangeNode<int> WarcryNearbyEnemiesCount { get; set; }
 
-        [Menu("Unique bosses", "Use Berserk on Unique Bosses", 85, 8)]
+        [Menu("Unique bosses", "Use Berserk on Unique Bosses", 95, 9)]
         public ToggleNode WarcryUseOnUniqueBoss { get; set; }
 
-        [Menu("Use always when ready", "Use always when ready (and matches Rage conditions)", 86, 8)]
+        [Menu("Use always when ready", "Use always when ready (and matches Rage conditions)", 96, 9)]
         public ToggleNode WarcryUseAlways { get; set; }
 
         #endregion
 
         #region Blade Flurry
 
-        [Menu("Blade Flurry", "Use mouse click to release Blade Flurry charges", 9)]
+        [Menu("Blade Flurry", "Use mouse click to release Blade Flurry charges", 10)]
         public ToggleNode BladeFlurry { get; set; }
 
-        [Menu("Min charges", "Minimal amount of BF charges to release", 91, 9)]
+        [Menu("Min charges", "Minimal amount of BF charges to release", 101, 10)]
         public RangeNode<int> BladeFlurryMinCharges { get; set; }
 
-        [Menu("Use left click", "Use left click instead of right click to release charges", 92, 9)]
+        [Menu("Use left click", "Use left click instead of right click to release charges", 102, 10)]
         public ToggleNode BladeFlurryUseLeftClick { get; set; }
 
-        [Menu("Wait for Infused Channeling buff", "Wait for Infused Channeling buff before release", 93, 9)]
+        [Menu("Wait for Infused Channeling buff", "Wait for Infused Channeling buff before release", 103, 10)]
         public ToggleNode BladeFlurryWaitForInfused { get; set; }
 
         #endregion
 
         #region Scourge Arrow
 
-        [Menu("Scourge Arrow", "Use mouse click to release Scourge Arrow charges", 10)]
+        [Menu("Scourge Arrow", "Use mouse click to release Scourge Arrow charges", 11)]
         public ToggleNode ScourgeArrow { get; set; }
 
-        [Menu("Min charges", "Minimal amount of BF charges to release", 101, 10)]
+        [Menu("Min charges", "Minimal amount of BF charges to release", 111, 11)]
         public RangeNode<int> ScourgeArrowMinCharges { get; set; }
 
-        [Menu("Use left click", "Use left click instead of right click to release charges", 102, 10)]
+        [Menu("Use left click", "Use left click instead of right click to release charges", 112, 11)]
         public ToggleNode ScourgeArrowUseLeftClick { get; set; }
 
-        [Menu("Wait for Infused Channeling buff", "Wait for Infused Channeling buff before release", 103, 10)]
+        [Menu("Wait for Infused Channeling buff", "Wait for Infused Channeling buff before release", 113, 11)]
         public ToggleNode ScourgeArrowWaitForInfused { get; set; }
 
         #endregion
 
         #region Misc
 
-        [Menu("Misc", 12)] public EmptyNode MiscSettings { get; set; }
+        [Menu("Misc", 13)] public EmptyNode MiscSettings { get; set; }
 
-        [Menu("Nearby monsters", "Require a minimum count of nearby monsters to cast buffs?", 121, 12)]
+        [Menu("Nearby monsters", "Require a minimum count of nearby monsters to cast buffs?", 131, 13)]
         public ToggleNode RequireMinMonsterCount { get; set; }
 
-        [Menu("Range", "Minimum count of nearby monsters to cast", 122, 12)]
+        [Menu("Range", "Minimum count of nearby monsters to cast", 132, 13)]
         public RangeNode<int> NearbyMonsterCount { get; set; }
 
-        [Menu("Range", "Max distance of monsters to player to count as nearby", 123, 12)]
+        [Menu("Range", "Max distance of monsters to player to count as nearby", 133, 13)]
         public RangeNode<int> NearbyMonsterMaxDistance { get; set; }
 
-        [Menu("Disable in hideout", "Disable the plugin in hideout?", 124, 12)]
+        [Menu("Disable in hideout", "Disable the plugin in hideout?", 134, 13)]
         public ToggleNode DisableInHideout { get; set; }
 
-        [Menu("Debug", "Print debug messages?", 125, 12)]
+        [Menu("Debug", "Print debug messages?", 135, 13)]
         public ToggleNode Debug { get; set; }
 
-        [Menu("Silence errors", "Hide error messages?", 126, 12)]
+        [Menu("Silence errors", "Hide error messages?", 136, 13)]
         public ToggleNode SilenceErrors { get; set; }
 
         #endregion

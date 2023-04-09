@@ -12,6 +12,14 @@ namespace BuffUtil
             public static readonly TimeSpan TimeBetweenCasts = TimeSpan.FromSeconds(1);
         }
 
+        public static class ArcaneCloak
+        {
+            public const string BuffName = "arcane_cloak";
+            public const string Name = "ArcaneCloak";
+            public const string InternalName = "arcane_cloak";
+            public static readonly TimeSpan TimeBetweenCasts = TimeSpan.FromSeconds(1);
+        }
+
         public static class ImmortalCall
         {
             public const string BuffName = "mortal_call";
